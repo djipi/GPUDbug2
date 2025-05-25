@@ -84,8 +84,11 @@ void MainWindow::setupUI() {
     // Move the "No memory warning" checkbox here, right after Load Address
     rightLayout->addWidget(memWarn);
 
-    rightLayout->addWidget(label5);
-    rightLayout->addWidget(pcEdit);
+    QHBoxLayout *pcLayout = new QHBoxLayout;
+    pcLayout->addWidget(label5);
+    pcLayout->addWidget(pcEdit);
+    rightLayout->addLayout(pcLayout);
+
     rightLayout->addWidget(runBtn);
     rightLayout->addWidget(stepBtn);
     rightLayout->addWidget(skipBtn);

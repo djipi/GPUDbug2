@@ -194,10 +194,18 @@ void MainWindow::onReset() { debugger.reset(); updateUI(); }
 void MainWindow::onExit() { close(); }
 
 // Slot: Switch to GPU mode
-void MainWindow::onGPUMode() { debugger.setGPUMode(true); updateUI(); }
+void MainWindow::onGPUMode() {
+    debugger.setGPUMode(true);
+    loadAddressEdit->setText("$00F03000"); // Set default address for GPU mode
+    updateUI();
+}
 
 // Slot: Switch to DSP mode
-void MainWindow::onDSPMode() { debugger.setGPUMode(false); updateUI(); }
+void MainWindow::onDSPMode() {
+    debugger.setGPUMode(false);
+    loadAddressEdit->setText("$00F1B000"); // Set default address for DSP mode
+    updateUI();
+}
 
 // Slot: Update PC from the line edit
 void MainWindow::onPCEditReturnPressed() {

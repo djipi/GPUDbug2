@@ -1,6 +1,10 @@
 #pragma once
 #include <QString>
 #include <vector>
+#include <cstdint>
+
+extern const int MemorySize;
+extern std::vector<uint8_t> MemoryBuffer;
 
 class GPUDebugger {
 public:

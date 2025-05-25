@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <algorithm>
+#include "gpudebugger.h"
 
 // Add this near the top, after the includes:
 template <typename T>
@@ -84,8 +85,8 @@ const int D_RAM    = 0xF1B000;
 
 // --- Globals ---
 
-uint8_t* MemoryBuffer = nullptr;
-int MemorySize = 0;
+//uint8_t* MemoryBuffer = nullptr;
+//int MemorySize = 0;
 int ProgramSize = 0;
 int CodeViewCurPos = 0;
 int LoadAddress = 0;
@@ -168,7 +169,7 @@ void UpdatePCView() {
 
 void UpdateGPUPCView() {
     int adrs = LoadAddress, size = ProgramSize, i = 0;
-    uint8_t* walk = MemoryBuffer + LoadAddress;
+    uint8_t* walk = MemoryBuffer.data() + LoadAddress;
     CodeViewCurPos = 0;
     for (i = 0; i < (int)GDBUG.CodeView.Items.size(); ++i)
         GDBUG.CodeView.Items[i].ImageIndex = IMG_NODE_NOTHING;
@@ -260,7 +261,7 @@ bool LoadBin(const std::string& fl, int adrs) {
         return false;
     }
     ProgramSize = fsize;
-    uint8_t* walk = MemoryBuffer + adrs;
+    uint8_t* walk = MemoryBuffer.data() + adrs;
     if (ProgramSize > 12) {
         uint8_t* walk2 = walk;
         fread(walk, 1, 12, f);
@@ -269,7 +270,7 @@ bool LoadBin(const std::string& fl, int adrs) {
         if (value == 0x42533934) {
             value = (walk2[4] << 24) | (walk2[5] << 16) | (walk2[6] << 8) | walk2[7];
             LoadAddress = value;
-            walk = MemoryBuffer + LoadAddress;
+            walk = MemoryBuffer.data() + LoadAddress;
         }
         ProgramSize -= 12;
     }
@@ -287,7 +288,7 @@ int GPUReadLong(int adrs) {
     }
     memadrs = adrs;
     if (memadrs >= 0 && (memadrs + 4) <= MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         int value = (walk[0] << 24) | (walk[1] << 16) | (walk[2] << 8) | walk[3];
         return value;
     } else if (!GDBUG.MemWarn.Checked) {
@@ -321,7 +322,7 @@ int GPUReadWord(int adrs, bool nochk) {
         MessageDlg("Warning", "ReadWord not allowed in internal ram !", mtWarning, mbOK, 0);
     memadrs = adrs;
     if (memadrs >= 0 && (memadrs + 2) <= MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         int value = (walk[0] << 8) | walk[1];
         return value;
     } else if (!GDBUG.MemWarn.Checked) {
@@ -337,7 +338,7 @@ int GPUReadByte(int adrs) {
     if (CheckInternalRam(memadrs))
         MessageDlg("Warning", "ReadByte not allowed in internal ram !", mtWarning, mbOK, 0);
     if (memadrs >= 0 && memadrs < MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         return walk[0];
     } else if (!GDBUG.MemWarn.Checked) {
         std::string str = "ReadByte outside allocated buffer !\nAddress = $" + IntToHex(adrs, 8);
@@ -380,7 +381,7 @@ void GPUWriteLong(int adrs, int data) {
     }
     memadrs = adrs;
     if (memadrs >= 0 && (memadrs + 4) <= MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         walk[0] = (data >> 24) & 0xFF;
         walk[1] = (data >> 16) & 0xFF;
         walk[2] = (data >> 8) & 0xFF;
@@ -403,7 +404,7 @@ void GPUWriteWord(int adrs, int data) {
         MessageDlg("Warning", "WriteWord not allowed in internal ram !", mtWarning, mbOK, 0);
     memadrs = adrs;
     if (memadrs >= 0 && (memadrs + 2) <= MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         walk[0] = (data >> 8) & 0xFF;
         walk[1] = data & 0xFF;
     } else if (!GDBUG.MemWarn.Checked) {
@@ -418,7 +419,7 @@ void GPUWriteByte(int adrs, int data) {
     if (CheckInternalRam(memadrs))
         MessageDlg("Warning", "WriteByte not allowed in internal ram !", mtWarning, mbOK, 0);
     if (memadrs >= 0 && memadrs < MemorySize) {
-        uint8_t* walk = MemoryBuffer + memadrs;
+        uint8_t* walk = MemoryBuffer.data() + memadrs;
         walk[0] = data & 0xFF;
     } else if (!GDBUG.MemWarn.Checked) {
         std::string str = "WriteByte outside allocated buffer !\nAddress = $" + IntToHex(adrs, 8);
@@ -846,7 +847,7 @@ void GPUStep(uint16_t w, bool exec) {
 
 void Disassemble() {
     GDBUG.CodeView.Clear();
-    uint8_t* walk = MemoryBuffer + LoadAddress;
+    uint8_t* walk = MemoryBuffer.data() + LoadAddress;
     int size = ProgramSize;
     int adrs = LoadAddress;
     while (size > 1) {

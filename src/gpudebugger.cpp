@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QByteArray>
-#include <vector>
+//#include <vector>
 #include "gpudebugger.h"
 
 const int MemorySize = 0xF1D000; // Address limit for the RISC processor

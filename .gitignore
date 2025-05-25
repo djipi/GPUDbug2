@@ -1,3 +1,6 @@
 .vs/
 x64/
 *.vcxproj.user
+Backup/
+src/Unit1.pas
+Resources/Unit1.lfm

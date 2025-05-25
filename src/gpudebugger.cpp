@@ -4,7 +4,11 @@
 #include "gpudebugger.h"
 
 // Constructor: Initialize the state
-GPUDebugger::GPUDebugger() : isReadyToReset(false), isReadyToRun(false), isReadyToStep(false), isReadyToSkip(false), progress(0), pc(0) {}
+GPUDebugger::GPUDebugger() 
+    : isReadyToReset(false), isReadyToRun(false), isReadyToStep(false), isReadyToSkip(false), progress(0), pc(0) {
+    regBank0.resize(32, 0); // Initialize regBank0 with 32 elements, all set to 0
+    regBank1.resize(32, 0); // Initialize regBank1 with 32 elements, all set to 0
+}
 
 // Implementation of canReset
 bool GPUDebugger::canReset() const {

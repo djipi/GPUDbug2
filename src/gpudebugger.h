@@ -43,4 +43,6 @@ private:
     bool isReadyToSkip; // Added member variable to track if skipping is allowed
     bool isReadyToReset; // Add a member variable to track if reset is allowed
     int pc; // Program counter
+    std::vector<int> regBank0; // Define regBank0 as a vector of integers
+    std::vector<int> regBank1; // Define regBank1 for consistency with the code
 };

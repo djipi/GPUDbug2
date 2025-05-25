@@ -84,6 +84,10 @@ QStringList GPUDebugger::getRegBank(int bank) const {
 }
 
 QStringList GPUDebugger::getCodeView() const {
+    // Return an empty list if no file has been loaded
+    if (!isReadyToRun && !isReadyToStep && !isReadyToSkip) {
+        return QStringList();
+    }
     // Example implementation
     return QStringList() << "MOV R0, R1" << "ADD R2, R3";
 }

@@ -151,7 +151,7 @@ void MainWindow::updateUI() {
     g_hidataLabel->setText(QString("G_HIDATA: %1").arg(debugger.getHiData()));
     g_remainLabel->setText(QString("G_REMAIN: %1").arg(debugger.getRemain()));
     jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
-    gpubpLabel->setText(debugger.getBP());
+    gpubpLabel->setText(QString("BP: %1").arg(debugger.getBP()));
     pcEdit->setText(debugger.getPC());
     // Update progress bar
     progress->setValue(debugger.getProgress());

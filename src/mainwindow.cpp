@@ -78,8 +78,12 @@ void MainWindow::setupUI() {
 
     // Add widgets to the right layout (after GPU/DSP mode)
     rightLayout->addWidget(loadBinBtn);
-    rightLayout->addWidget(new QLabel("Load Address:"));
-    rightLayout->addWidget(loadAddressEdit);
+
+    QHBoxLayout *loadAddrLayout = new QHBoxLayout;
+    QLabel *loadAddrLabel = new QLabel("Load Address:");
+    loadAddrLayout->addWidget(loadAddrLabel);
+    loadAddrLayout->addWidget(loadAddressEdit);
+    rightLayout->addLayout(loadAddrLayout);
 
     // Move the "No memory warning" checkbox here, right after Load Address
     rightLayout->addWidget(memWarn);

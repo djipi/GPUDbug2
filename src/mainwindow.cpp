@@ -149,7 +149,7 @@ void MainWindow::updateUI() {
     // Update status labels
     flagStatusLabel->setText(debugger.getFlags());
     g_hidataLabel->setText(QString("G_HIDATA: %1").arg(debugger.getHiData()));
-    g_remainLabel->setText(debugger.getRemain());
+    g_remainLabel->setText(QString("G_REMAIN: %1").arg(debugger.getRemain()));
     jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
     gpubpLabel->setText(debugger.getBP());
     pcEdit->setText(debugger.getPC());

@@ -67,7 +67,16 @@ bool GPUDebugger::canSkip() const {
 
 QStringList GPUDebugger::getRegBank(int bank) const {
     // Example implementation
-    return QStringList() << "R0: $00000000" << "R1: $00000001";
+    QStringList list;
+    // On suppose que les valeurs des registres sont stockées dans un tableau membre, par exemple : regBank[2][32]
+    // Remplacer par l'accès réel à vos registres si besoin
+    for (int i = 0; i < 32; ++i) {
+        int value = 0;
+        if (bank == 0 && regBank0.size() == 32) value = regBank0[i];
+        else if (bank == 1 && regBank1.size() == 32) value = regBank1[i];
+        list << QString("R%1: $%2").arg(i, 2, 10, QChar('0')).arg(value, 8, 16, QChar('0')).toUpper();
+    }
+    return list;
 }
 
 QStringList GPUDebugger::getCodeView() const {

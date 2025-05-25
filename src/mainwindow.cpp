@@ -148,7 +148,7 @@ void MainWindow::updateUI() {
         codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << s));
     // Update status labels
     flagStatusLabel->setText(debugger.getFlags());
-    g_hidataLabel->setText(debugger.getHiData());
+    g_hidataLabel->setText(QString("G_HIDATA: %1").arg(debugger.getHiData()));
     g_remainLabel->setText(debugger.getRemain());
     jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
     gpubpLabel->setText(debugger.getBP());

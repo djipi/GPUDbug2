@@ -1,7 +1,14 @@
 #include <QString>
 #include <QStringList>
 #include <QDebug> // For debugging purposes
+#include <QFile>
+#include <QMessageBox>
+#include <QByteArray>
+#include <vector>
 #include "gpudebugger.h"
+
+const int MemorySize = 0xF1D000; // Address limit for the RISC processor
+std::vector<uint8_t> MemoryBuffer(MemorySize);
 
 // Constructor: Initialize the state
 GPUDebugger::GPUDebugger() 
@@ -18,11 +25,91 @@ bool GPUDebugger::canReset() const {
 }
 
 bool GPUDebugger::loadBin(const QString& filename, int address) {
-    // Implementation for loading a BIN file
+    int LoadAddress = address;
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(nullptr, "Error", "Error while loading file.");
+        return false;
+    }
+
+    qint64 fileSize = file.size();
+    if (fileSize > (MemorySize - LoadAddress)) {
+        QMessageBox::critical(nullptr, "Error", "File too large!");
+        file.close();
+        return false;
+    }
+
+    int ProgramSize = static_cast<int>(fileSize);
+    int readOffset = LoadAddress;
+
+    QByteArray header = file.read(12);
+    if (header.size() == 12) {
+        // Check for magic number "BS94" ($42533934)
+        int value = (static_cast<uint8_t>(header[0]) << 24) |
+                    (static_cast<uint8_t>(header[1]) << 16) |
+                    (static_cast<uint8_t>(header[2]) << 8)  |
+                    (static_cast<uint8_t>(header[3]));
+        if (value == 0x42533934) {
+            // Next 4 bytes: new LoadAddress
+            int newAddr = (static_cast<uint8_t>(header[4]) << 24) |
+                          (static_cast<uint8_t>(header[5]) << 16) |
+                          (static_cast<uint8_t>(header[6]) << 8)  |
+                          (static_cast<uint8_t>(header[7]));
+            LoadAddress = newAddr;
+            readOffset = LoadAddress;
+            // ProgramSize is reduced by 12 bytes (header)
+            ProgramSize -= 12;
+            // Read the rest of the file into memory
+            QByteArray rest = file.read(ProgramSize);
+            if (rest.size() != ProgramSize) {
+                QMessageBox::critical(nullptr, "Error", "Error while loading file.");
+                file.close();
+                return false;
+            }
+            if (readOffset + ProgramSize > MemorySize) {
+                QMessageBox::critical(nullptr, "Error", "File too large for memory.");
+                file.close();
+                return false;
+            }
+            std::copy(rest.begin(), rest.end(), MemoryBuffer.begin() + readOffset);
+        } else {
+            // Not a "BS94" file, copy header + rest
+            file.seek(0);
+            QByteArray all = file.read(ProgramSize);
+            if (all.size() != ProgramSize) {
+                QMessageBox::critical(nullptr, "Error", "Error while loading file.");
+                file.close();
+                return false;
+            }
+            if (readOffset + ProgramSize > MemorySize) {
+                QMessageBox::critical(nullptr, "Error", "File too large for memory.");
+                file.close();
+                return false;
+            }
+            std::copy(all.begin(), all.end(), MemoryBuffer.begin() + readOffset);
+        }
+    } else {
+        // File smaller than 12 bytes, just copy all
+        file.seek(0);
+        QByteArray all = file.read(ProgramSize);
+        if (all.size() != ProgramSize) {
+            QMessageBox::critical(nullptr, "Error", "Error while loading file.");
+            file.close();
+            return false;
+        }
+        if (readOffset + ProgramSize > MemorySize) {
+            QMessageBox::critical(nullptr, "Error", "File too large for memory.");
+            file.close();
+            return false;
+        }
+        std::copy(all.begin(), all.end(), MemoryBuffer.begin() + readOffset);
+    }
+
+    file.close();
     isReadyToRun = true;
     isReadyToStep = true;
-    isReadyToSkip = true; // Enable skipping after loading a BIN file
-    return true; // Assume success for simplicity
+    isReadyToSkip = true;
+    return true;
 }
 
 void GPUDebugger::reset() {

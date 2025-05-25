@@ -143,7 +143,7 @@ void MainWindow::updateUI() {
     flagStatusLabel->setText(debugger.getFlags());
     g_hidataLabel->setText(debugger.getHiData());
     g_remainLabel->setText(debugger.getRemain());
-    jumpLabel->setText(debugger.getJump());
+    jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
     gpubpLabel->setText(debugger.getBP());
     pcEdit->setText(debugger.getPC());
     // Update progress bar

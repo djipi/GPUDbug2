@@ -40,6 +40,9 @@
     <None Include="..\Resources\Unit1.lfm">
       <Filter>Form Files</Filter>
     </None>
+    <None Include="..\README.md" />
+    <None Include="..\Makefile" />
+    <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\src\mainwindow.h">

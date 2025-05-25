@@ -2,11 +2,11 @@
 Atari Jaguar RISC simulator & debugger
 
 ## Platform
-Windows 10/11 64-bit
+Windows 10/11 64-bit<br>
 MinGW 64-bit
 
 ## Project
-Visual Studio 2022 64-bit
+Visual Studio 2022 64-bit<br>
 Makefile
 
 ## Disclaimer

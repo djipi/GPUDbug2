@@ -5,11 +5,11 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <cstring>
+//#include <cstring>
 #include <cstdlib>
 #include <cstdio>
 #include <cstdint>
-#include <algorithm>
+//#include <algorithm>
 #include "gpudebugger.h"
 
 // Add this near the top, after the includes:

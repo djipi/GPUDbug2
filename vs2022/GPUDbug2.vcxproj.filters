@@ -41,7 +41,6 @@
       <Filter>Form Files</Filter>
     </None>
     <None Include="..\README.md" />
-    <None Include="..\Makefile" />
     <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>

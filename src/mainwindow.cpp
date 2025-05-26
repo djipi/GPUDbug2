@@ -36,7 +36,7 @@ void MainWindow::setupUI() {
     regBank0 = new QTreeWidget;
     regBank0->setHeaderHidden(true);
     regBank0->setMinimumWidth(300); // Set minimum width for readability
-    regBank0->setColumnCount(1);
+    regBank0->setColumnCount(2);
     regBank0->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     regBank0->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     regBank0->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -49,7 +49,7 @@ void MainWindow::setupUI() {
     regBank1 = new QTreeWidget;
     regBank1->setHeaderHidden(true);
     regBank1->setMinimumWidth(300); // Set minimum width for readability
-    regBank1->setColumnCount(1);
+    regBank1->setColumnCount(2);
     regBank1->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     regBank1->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     regBank1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -151,20 +151,36 @@ void MainWindow::setupUI() {
     connect(regBank0, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank0ItemDoubleClicked);
     connect(regBank1, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank1ItemDoubleClicked);
     connect(codeView, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onCodeViewItemDoubleClicked);
+
+    regBank0->setHeaderHidden(true);
+    regBank1->setHeaderHidden(true);
 }
 
 // Updates all UI widgets to reflect the current state of the debugger
 void MainWindow::updateUI() {
     // Update register banks
     regBank0->clear();
-    for (const QString &s : debugger.getRegBank(0))
-        regBank0->addTopLevelItem(new QTreeWidgetItem(QStringList() << s));
-    regBank0->resizeColumnToContents(0); // Auto-size column
+    for (const QString &s : debugger.getRegBank(0)) {
+        // Split s into two parts, e.g., "R0: $00000000"
+        QStringList parts = s.split(": ");
+        if (parts.size() == 2)
+            regBank0->addTopLevelItem(new QTreeWidgetItem(parts));
+        else
+            regBank0->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+    }
+    regBank0->resizeColumnToContents(0);
+    regBank0->resizeColumnToContents(1);
 
     regBank1->clear();
-    for (const QString &s : debugger.getRegBank(1))
-        regBank1->addTopLevelItem(new QTreeWidgetItem(QStringList() << s));
-    regBank1->resizeColumnToContents(0); // Auto-size column
+    for (const QString &s : debugger.getRegBank(1)) {
+        QStringList parts = s.split(": ");
+        if (parts.size() == 2)
+            regBank1->addTopLevelItem(new QTreeWidgetItem(parts));
+        else
+            regBank1->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+    }
+    regBank1->resizeColumnToContents(0);
+    regBank1->resizeColumnToContents(1);
 
     // Ensure all register lines are visible without vertical scroll bar
     int regCount = regBank0->topLevelItemCount();

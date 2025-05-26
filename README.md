@@ -1,5 +1,5 @@
 # GPUDbug2
-Atari Jaguar RISC simulator & debugger
+Atari Jaguar GPU|DSP simulator & debugger
 
 ## Platform
 Windows 10/11 64-bit<br>

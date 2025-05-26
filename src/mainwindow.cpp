@@ -28,11 +28,11 @@ void MainWindow::setupUI() {
 
     // --- Left: Register banks ---
     QVBoxLayout *leftLayout = new QVBoxLayout;
-    regBank0Label = new QLabel("GPU Register Bank 0:");
+    regBank0Label = new QLabel("Register Bank 0:");
     regBank0Label->setStyleSheet("font-weight: bold");
     regBank0 = new QTreeWidget;
     regBank0->setHeaderHidden(true);
-    regBank1Label = new QLabel("GPU Register Bank 1:");
+    regBank1Label = new QLabel("Register Bank 1:");
     regBank1 = new QTreeWidget;
     regBank1->setHeaderHidden(true);
     leftLayout->addWidget(regBank0Label);
@@ -42,7 +42,7 @@ void MainWindow::setupUI() {
 
     // --- Center: Code view ---
     QVBoxLayout *centerLayout = new QVBoxLayout;
-    codeLabel = new QLabel("GPU Code:");
+    codeLabel = new QLabel("Code:");
     codeView = new QTreeWidget;
     codeView->setHeaderHidden(true);
     centerLayout->addWidget(codeLabel);
@@ -63,10 +63,10 @@ void MainWindow::setupUI() {
     label4 = new QLabel("at");
     pcEdit = new QLineEdit("$00F03000");
     label5 = new QLabel("PC:");
-    runBtn = new QPushButton("Run GPU (F9)");
+    runBtn = new QPushButton("Run (F9)");
     stepBtn = new QPushButton("Step (F10)");
     skipBtn = new QPushButton("Skip (F11)");
-    resetBtn = new QPushButton("Reset GPU (F12)");
+    resetBtn = new QPushButton("Reset (F12)");
     exitBtn = new QPushButton("Exit");
     memWarn = new QCheckBox("No memory warning");
     progress = new QProgressBar;

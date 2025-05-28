@@ -30,23 +30,22 @@ public:
     // New methods to check debugger state
     bool canRun() const;
     bool canStep() const;
-    bool canSkip() const; // Added declaration for canSkip
-    bool canReset() const; // Add this declaration
+    bool canSkip() const;
+    bool canReset() const;
 
     void setPC(const QString& pcValue);
-    void editRegister(int bank, const QString& value);
+    void setGPUMode(bool isGPUMode);
+    void setBreakpoint(const QString& address);
 
-    void setGPUMode(bool isGPUMode); // Added declaration for setGPUMode
-    void setBreakpoint(const QString& address); // Added declaration for setBreakpoint
+    void editRegister(int bank, const QString& value); // Add declaration for editRegister
 
 private:
-    // Internal state and logic (from your previous C++ translation)
-    int progress; // Add a member variable to store progress
-    bool isReadyToRun; // New member variable to track if the debugger can run
-    bool isReadyToStep; // Added member variable to track if stepping is allowed
-    bool isReadyToSkip; // Added member variable to track if skipping is allowed
-    bool isReadyToReset; // Add a member variable to track if reset is allowed
-    int pc; // Program counter
-    std::vector<int> regBank0; // Define regBank0 as a vector of integers
-    std::vector<int> regBank1; // Define regBank1 for consistency with the code
+    int progress;
+    bool isReadyToRun;
+    bool isReadyToStep;
+    bool isReadyToSkip;
+    bool isReadyToReset;
+    int pc;
+    std::vector<int> regBank0;
+    std::vector<int> regBank1;
 };

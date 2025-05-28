@@ -216,16 +216,26 @@ void GPUDebugger::setPC(const QString& pcValue) {
 }
 
 void GPUDebugger::editRegister(int bank, const QString& value) {
-    // Example implementation: Log the bank and value for debugging
-    qDebug() << "Editing register in bank" << bank << "with value" << value;
-
-    // Add logic to modify the register value in the specified bank
-    // For example:
-    if (bank == 0) {
-        // Modify register in bank 0
-    } else if (bank == 1) {
-        // Modify register in bank 1
-    } else {
+    // Parse "R<num>: $<hexvalue>"
+    QRegExp rx("^R(\\d+): \\$([0-9A-Fa-f]+)$");
+    if (!rx.exactMatch(value)) {
+        qDebug() << "Invalid register format:" << value;
+        return;
+    }
+    int regIndex = rx.cap(1).toInt();
+    bool ok = false;
+    int regValue = rx.cap(2).toInt(&ok, 16);
+    if (!ok || regIndex < 0 || regIndex >= 32) {
+        qDebug() << "Invalid register value or index:" << value;
+        return;
+    }
+    if (bank == 0 && regBank0.size() == 32) {
+        regBank0[regIndex] = regValue;
+    }
+    else if (bank == 1 && regBank1.size() == 32) {
+        regBank1[regIndex] = regValue;
+    }
+    else {
         qDebug() << "Invalid bank specified.";
     }
 }

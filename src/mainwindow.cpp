@@ -11,6 +11,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QHeaderView> // Add this include at the top of your file
+#include <QInputDialog> // Add this include at the top
+#include <QEvent>
 
 // MainWindow constructor: sets up the UI and initializes the display
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -33,6 +35,8 @@ void MainWindow::setupUI() {
     // Register Bank 0 column
     QVBoxLayout *regBank0Layout = new QVBoxLayout;
     regBank0Label = new QLabel("Register Bank 0");
+    regBank0Label->setCursor(Qt::PointingHandCursor);
+    regBank0Label->installEventFilter(this);
     regBank0 = new QTreeWidget;
     regBank0->setHeaderHidden(true);
     regBank0->setMinimumWidth(300); // Set minimum width for readability
@@ -46,6 +50,8 @@ void MainWindow::setupUI() {
     // Register Bank 1 column
     QVBoxLayout *regBank1Layout = new QVBoxLayout;
     regBank1Label = new QLabel("Register Bank 1");
+    regBank1Label->setCursor(Qt::PointingHandCursor);
+    regBank1Label->installEventFilter(this);
     regBank1 = new QTreeWidget;
     regBank1->setHeaderHidden(true);
     regBank1->setMinimumWidth(300); // Set minimum width for readability
@@ -273,19 +279,92 @@ void MainWindow::onPCEditReturnPressed() {
 }
 
 // Slot: Edit a register in bank 0
-void MainWindow::onRegBank0ItemDoubleClicked(QTreeWidgetItem *item, int) {
-    debugger.editRegister(0, item->text(0));
+void MainWindow::onRegBank0ItemDoubleClicked(QTreeWidgetItem* item, int column) {
+    if (column != 1) return; // Only allow editing the value column
+    int regIndex = regBank0->indexOfTopLevelItem(item);
+    QString currentValue = item->text(1);
+    bool ok = false;
+    QInputDialog dlg(this);
+    dlg.setWindowTitle("Edit Register (Bank 0)");
+    dlg.setLabelText(QString("Current value: %1\nEnter new value (hex, without $):").arg(currentValue));
+    dlg.setTextValue(currentValue.remove('$'));
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.resize(600, dlg.sizeHint().height()); // Make the dialog wider
+    if (dlg.exec() != QDialog::Accepted) return;
+    QString newValue = dlg.textValue();
+    if (newValue.isEmpty()) return;
+    debugger.editRegister(0, QString("R%1: $%2").arg(regIndex).arg(newValue.toInt(nullptr, 16), 8, 16, QChar('0')).toUpper());
     updateUI();
 }
 
 // Slot: Edit a register in bank 1
-void MainWindow::onRegBank1ItemDoubleClicked(QTreeWidgetItem *item, int) {
-    debugger.editRegister(1, item->text(0));
+void MainWindow::onRegBank1ItemDoubleClicked(QTreeWidgetItem* item, int column) {
+    if (column != 1) return; // Only allow editing the value column
+    int regIndex = regBank1->indexOfTopLevelItem(item);
+    QString currentValue = item->text(1);
+    bool ok = false;
+    QInputDialog dlg(this);
+    dlg.setWindowTitle("Edit Register (Bank 1)");
+    dlg.setLabelText(QString("Current value: %1\nEnter new value (hex, without $):").arg(currentValue));
+    dlg.setTextValue(currentValue.remove('$'));
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.resize(600, dlg.sizeHint().height()); // Make the dialog wider
+    if (dlg.exec() != QDialog::Accepted) return;
+    QString newValue = dlg.textValue();
+    if (newValue.isEmpty()) return;
+    debugger.editRegister(1, QString("R%1: $%2").arg(regIndex).arg(newValue.toInt(nullptr, 16), 8, 16, QChar('0')).toUpper());
     updateUI();
 }
 
 // Slot: Set a breakpoint in the code view
-void MainWindow::onCodeViewItemDoubleClicked(QTreeWidgetItem *item, int) {
+void MainWindow::onCodeViewItemDoubleClicked(QTreeWidgetItem* item, int column) {
+    Q_UNUSED(column);
+    if (!item) return;
     debugger.setBreakpoint(item->text(0));
     updateUI();
+}
+
+// Slot: Edit a register in bank 0 via label click
+void MainWindow::onRegBank0LabelClicked() {
+    bool ok = false;
+    int regIndex = QInputDialog::getInt(this, "Edit Register (Bank 0)", "Register index (0-31):", 0, 0, 31, 1, &ok);
+    if (!ok) return;
+    QString currentValue = regBank0->topLevelItem(regIndex)->text(1);
+    bool ok2 = false;
+    QString newValue = QInputDialog::getText(this, "Edit Register (Bank 0)",
+        QString("Current value: %1\nEnter new value (hex, without $):").arg(currentValue),
+        QLineEdit::Normal, currentValue.remove('$'), &ok2);
+    if (!ok2 || newValue.isEmpty()) return;
+    debugger.editRegister(0, QString("R%1: $%2").arg(regIndex).arg(newValue.toInt(nullptr, 16), 8, 16, QChar('0')).toUpper());
+    updateUI();
+}
+
+// Slot: Edit a register in bank 1 via label click
+void MainWindow::onRegBank1LabelClicked() {
+    bool ok = false;
+    int regIndex = QInputDialog::getInt(this, "Edit Register (Bank 1)", "Register index (0-31):", 0, 0, 31, 1, &ok);
+    if (!ok) return;
+    QString currentValue = regBank1->topLevelItem(regIndex)->text(1);
+    bool ok2 = false;
+    QString newValue = QInputDialog::getText(this, "Edit Register (Bank 1)",
+        QString("Current value: %1\nEnter new value (hex, without $):").arg(currentValue),
+        QLineEdit::Normal, currentValue.remove('$'), &ok2);
+    if (!ok2 || newValue.isEmpty()) return;
+    debugger.editRegister(1, QString("R%1: $%2").arg(regIndex).arg(newValue.toInt(nullptr, 16), 8, 16, QChar('0')).toUpper());
+    updateUI();
+}
+
+// Event filter for handling mouse button release events on labels
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+    if (event->type() == QEvent::MouseButtonRelease) {
+        if (obj == regBank0Label) {
+            onRegBank0LabelClicked();
+            return true;
+        }
+        if (obj == regBank1Label) {
+            onRegBank1LabelClicked();
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
 }

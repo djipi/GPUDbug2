@@ -21,6 +21,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    // Override the eventFilter function from QObject
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private slots:
     // Slot for loading a BIN file
     void onLoadBin();
@@ -46,6 +50,10 @@ private slots:
     void onRegBank1ItemDoubleClicked(QTreeWidgetItem*, int);
     // Slot for setting a breakpoint in the code view
     void onCodeViewItemDoubleClicked(QTreeWidgetItem*, int);
+    // Slot for editing a register in bank 0 via label click
+    void onRegBank0LabelClicked();
+    // Slot for editing a register in bank 1 via label click
+    void onRegBank1LabelClicked();
 
 private:
     // UI widgets

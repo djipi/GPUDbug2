@@ -10,6 +10,8 @@ Project is still Work in Progress and not fully fonctional.
 * Visual Studio 2022 64-bit
 * Makefile
 
+## Foundation
+This project is using the work from https://github.com/42Bastian/gpudbug which is based on the Orion's GPUDBUG.
+
 ## Disclaimer
-This project is using the work from https://github.com/42Bastian/gpudbug which is based on the Orion's GPUDBUG.<br>
-The logic done in Pascal has been converted to C/C++ using Copilot for the most part. The UI has been partialy written with Qt using Copilot.
+The logic done in Pascal has been converted to C/C++ using Copilot for the most part. The UI has been converted to Qt with the support of Copilot.

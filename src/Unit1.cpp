@@ -428,28 +428,6 @@ void GPUWriteByte(int adrs, int data) {
     MemWriteCheck();
 }
 
-std::string GetJumpFlag(uint8_t flag) {
-    switch (flag) {
-        case 0x0: return "";
-        case 0x1: return "NE";
-        case 0x2: return "EQ";
-        case 0x4: return "CC";
-        case 0x5: return "HI";
-        case 0x6: return "NC Z";
-        case 0x8: return "CS";
-        case 0x9: return "C NZ";
-        case 0xA: return "C Z";
-        case 0x14: return "GE";
-        case 0x15: return "GT";
-        case 0x16: return "NN Z";
-        case 0x18: return "LE";
-        case 0x19: return "LT";
-        case 0x1A: return "N Z";
-        case 0x1F: return "NOT";
-        default: return "ERR";
-    }
-}
-
 void Update_ZN_Flag(int i) {
     NFlag = (i < 0) ? 1 : 0;
     ZFlag = (i == 0) ? 1 : 0;

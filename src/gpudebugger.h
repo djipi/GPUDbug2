@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
+#include <QStringList> // Include QStringList to resolve the error
 #include <vector>
 #include <cstdint>
 
@@ -39,6 +40,9 @@ public:
 
     void editRegister(int bank, const QString& value); // Add declaration for editRegister
 
+    QStringList disassemble(int loadAddress, int programSize) const;
+    int getProgramSize() const; // Add this if needed
+
 private:
     int progress;
     bool isReadyToRun;
@@ -46,6 +50,11 @@ private:
     bool isReadyToSkip;
     bool isReadyToReset;
     int pc;
+    int programSize; // <-- Add this line
     std::vector<int> regBank0;
     std::vector<int> regBank1;
+    QStringList codeViewLines; // Add this line
 };
+
+// Declare GetJumpFlag function
+std::string GetJumpFlag(uint8_t flag);

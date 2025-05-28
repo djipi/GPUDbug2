@@ -13,6 +13,7 @@
 #include <QHeaderView> // Add this include at the top of your file
 #include <QInputDialog> // Add this include at the top
 #include <QEvent>
+#include <QListView> // Include QListView
 
 // MainWindow constructor: sets up the UI and initializes the display
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -70,7 +71,8 @@ void MainWindow::setupUI() {
     QVBoxLayout *centerLayout = new QVBoxLayout;
     codeLabel = new QLabel("Code");
     codeView = new QTreeWidget;
-    codeView->setHeaderHidden(true);
+    codeView->setColumnCount(2); // Two sub-columns
+    codeView->setHeaderHidden(true); // Hide header for no visual separation
     centerLayout->addWidget(codeLabel);
     centerLayout->addWidget(codeView);
 
@@ -168,7 +170,7 @@ void MainWindow::updateUI() {
     regBank0->clear();
     for (const QString &s : debugger.getRegBank(0)) {
         // Split s into two parts, e.g., "R0: $00000000"
-        QStringList parts = s.split(": ");
+        QStringList parts = s.split(": ", QString::KeepEmptyParts);
         if (parts.size() == 2)
             regBank0->addTopLevelItem(new QTreeWidgetItem(parts));
         else
@@ -179,7 +181,7 @@ void MainWindow::updateUI() {
 
     regBank1->clear();
     for (const QString &s : debugger.getRegBank(1)) {
-        QStringList parts = s.split(": ");
+        QStringList parts = s.split(": ", QString::KeepEmptyParts);
         if (parts.size() == 2)
             regBank1->addTopLevelItem(new QTreeWidgetItem(parts));
         else
@@ -209,8 +211,17 @@ void MainWindow::updateUI() {
 
     // Update code view
     codeView->clear();
-    for (const QString &s : debugger.getCodeView())
-        codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << s));
+    for (const QString &s : debugger.getCodeView()) {
+        // Suppose s is "$00F03000: ADD R1,R2"
+        QStringList parts = s.split(": ", QString::KeepEmptyParts);
+        if (parts.size() == 2)
+            codeView->addTopLevelItem(new QTreeWidgetItem(parts));
+        else
+            codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+    }
+    codeView->resizeColumnToContents(0);
+    codeView->resizeColumnToContents(1);
+
     // Update status labels
     flagStatusLabel->setText(debugger.getFlags());
     g_hidataLabel->setText(QString("G_HIDATA: %1").arg(debugger.getHiData()));
@@ -236,7 +247,7 @@ void MainWindow::onLoadBin() {
         if (!ok) address = 0;
         if (debugger.loadBin(fileName, address)) {
             debugger.reset();
-            updateUI();
+            updateUI(); // Only call updateUI()
         } else {
             QMessageBox::warning(this, "Error", "Failed to load BIN file.");
         }

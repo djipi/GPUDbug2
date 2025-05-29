@@ -71,7 +71,7 @@ void MainWindow::setupUI() {
     QVBoxLayout *centerLayout = new QVBoxLayout;
     codeLabel = new QLabel("Disassembly Code");
     codeView = new QTreeWidget;
-    codeView->setColumnCount(2); // Two sub-columns
+    codeView->setColumnCount(3); // Two sub-columns
     codeView->setHeaderHidden(true); // Hide header for no visual separation
     centerLayout->addWidget(codeLabel);
     centerLayout->addWidget(codeView);
@@ -213,15 +213,31 @@ void MainWindow::updateUI() {
     // Update code view
     codeView->clear();
     for (const QString &s : debugger.getCodeView()) {
-        // Suppose s is "$00F03000: ADD R1,R2"
+        // s is "$00F03000: ADD R1,R2"
         QStringList parts = s.split(": ", QString::KeepEmptyParts);
-        if (parts.size() == 2)
-            codeView->addTopLevelItem(new QTreeWidgetItem(parts));
-        else
-            codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+        QString bpMark;
+        if (parts.size() == 2) {
+            // Extract address as int
+            bool ok = false;
+            int addr = parts[0].remove('$').toInt(&ok, 16);
+            if (ok && debugger.hasBreakpoint(addr))
+                bpMark = "*"; // or "B" or any marker you like
+            QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << bpMark << parts[0] << parts[1]);
+            if (!bpMark.isEmpty()) {
+                item->setForeground(0, QBrush(Qt::red)); // Set marker color to red
+                QFont markerFont = codeView->font();
+                markerFont.setPointSizeF(markerFont.pointSizeF() * 1.3); // Increase by 30%
+                markerFont.setBold(true); // Make marker bold
+                item->setFont(0, markerFont);
+            }
+            codeView->addTopLevelItem(item);
+        } else {
+            codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << "" << s << ""));
+        }
     }
     codeView->resizeColumnToContents(0);
     codeView->resizeColumnToContents(1);
+    codeView->resizeColumnToContents(2);
 
     // Update status labels
     flagStatusLabel->setText(debugger.getFlags());
@@ -332,7 +348,7 @@ void MainWindow::onRegBank1ItemDoubleClicked(QTreeWidgetItem* item, int column) 
 void MainWindow::onCodeViewItemDoubleClicked(QTreeWidgetItem* item, int column) {
     Q_UNUSED(column);
     if (!item) return;
-    debugger.setBreakpoint(item->text(0));
+    debugger.setBreakpoint(item->text(1)); // Use column 1 for address
     updateUI();
 }
 

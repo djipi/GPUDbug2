@@ -250,16 +250,23 @@ void GPUDebugger::setBreakpoint(const QString& address) {
     QString modifiableAddress = address;
     int bp = modifiableAddress.remove('$').toInt(&ok, 16);
     if (ok) {
-        if (breakpointAddress == bp) {
+        if (breakpoints.contains(bp)) {
             // Remove breakpoint if already set at this address
-            breakpointAddress = 0;
+            breakpoints.remove(bp);
+            if (breakpointAddress == bp)
+                breakpointAddress = 0;
         } else {
             // Set new breakpoint
+            breakpoints.insert(bp);
             breakpointAddress = bp;
         }
     } else {
         qDebug() << "Invalid address format for breakpoint:" << address;
     }
+}
+
+bool GPUDebugger::hasBreakpoint(int address) const {
+    return breakpoints.contains(address);
 }
 
 QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {

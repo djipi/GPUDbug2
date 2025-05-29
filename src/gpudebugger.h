@@ -3,6 +3,7 @@
 #include <QStringList> // Include QStringList to resolve the error
 #include <vector>
 #include <cstdint>
+#include <QSet> // Include QSet for breakpoints
 
 extern const int MemorySize;
 extern std::vector<uint8_t> MemoryBuffer;
@@ -37,11 +38,12 @@ public:
     void setPC(const QString& pcValue);
     void setGPUMode(bool isGPUMode);
     void setBreakpoint(const QString& address);
+    bool hasBreakpoint(int address) const; // <-- Add this declaration
 
-    void editRegister(int bank, const QString& value); // Add declaration for editRegister
+    void editRegister(int bank, const QString& value);
 
     QStringList disassemble(int loadAddress, int programSize) const;
-    int getProgramSize() const; // Add this if needed
+    int getProgramSize() const;
 
 private:
     int progress;
@@ -50,11 +52,12 @@ private:
     bool isReadyToSkip;
     bool isReadyToReset;
     int pc;
-    int programSize; // <-- Add this line
+    int programSize;
     std::vector<int> regBank0;
     std::vector<int> regBank1;
-    QStringList codeViewLines; // Add this line
-    int breakpointAddress = 0; // Add this line
+    QStringList codeViewLines;
+    int breakpointAddress = 0;
+    QSet<int> breakpoints; // Stores all breakpoints
 };
 
 // Declare GetJumpFlag function

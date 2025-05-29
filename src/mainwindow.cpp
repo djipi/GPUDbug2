@@ -267,10 +267,11 @@ void MainWindow::updateUI() {
     // Update progress bar
     progress->setValue(debugger.getProgress());
     // Enable/disable buttons based on debugger state
-    runBtn->setEnabled(debugger.canRun());
-    stepBtn->setEnabled(debugger.canStep());
-    skipBtn->setEnabled(debugger.canSkip());
-    resetBtn->setEnabled(debugger.canReset());
+    bool fileLoaded = debugger.canRun() || debugger.canStep() || debugger.canSkip();
+    runBtn->setEnabled(fileLoaded);
+    stepBtn->setEnabled(fileLoaded);
+    skipBtn->setEnabled(fileLoaded);
+    resetBtn->setEnabled(fileLoaded);
 }
 
 // Slot: Load a BIN file and initialize the debugger

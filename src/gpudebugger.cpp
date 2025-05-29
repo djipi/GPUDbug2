@@ -191,7 +191,7 @@ QString GPUDebugger::getHiData() const {
 }
 
 QString GPUDebugger::getBP() const {
-    return "$00000000";
+    return QString("$%1").arg(breakpointAddress, 8, 16, QChar('0')).toUpper();
 }
 
 int GPUDebugger::getProgress() const {
@@ -246,14 +246,17 @@ void GPUDebugger::setGPUMode(bool isGPUMode) {
 }
 
 void GPUDebugger::setBreakpoint(const QString& address) {
-    // Convert the address from QString to an integer
     bool ok = false;
-    QString modifiableAddress = address; // Create a modifiable copy
-    int breakpointAddress = modifiableAddress.remove('$').toInt(&ok, 16);
+    QString modifiableAddress = address;
+    int bp = modifiableAddress.remove('$').toInt(&ok, 16);
     if (ok) {
-        // Logic to set the breakpoint (e.g., add to a list of breakpoints)
-        qDebug() << "Breakpoint set at address:" << QString::number(breakpointAddress, 16).toUpper();
-        // Add your breakpoint handling logic here
+        if (breakpointAddress == bp) {
+            // Remove breakpoint if already set at this address
+            breakpointAddress = 0;
+        } else {
+            // Set new breakpoint
+            breakpointAddress = bp;
+        }
     } else {
         qDebug() << "Invalid address format for breakpoint:" << address;
     }

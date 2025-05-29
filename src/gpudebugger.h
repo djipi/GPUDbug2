@@ -54,6 +54,7 @@ private:
     std::vector<int> regBank0;
     std::vector<int> regBank1;
     QStringList codeViewLines; // Add this line
+    int breakpointAddress = 0; // Add this line
 };
 
 // Declare GetJumpFlag function

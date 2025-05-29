@@ -71,7 +71,7 @@ void MainWindow::setupUI() {
     QVBoxLayout *centerLayout = new QVBoxLayout;
     codeLabel = new QLabel("Disassembly Code");
     codeView = new QTreeWidget;
-    codeView->setColumnCount(3); // Two sub-columns
+    codeView->setColumnCount(4); // Four sub-columns
     codeView->setHeaderHidden(true); // Hide header for no visual separation
     centerLayout->addWidget(codeLabel);
     centerLayout->addWidget(codeView);
@@ -212,32 +212,49 @@ void MainWindow::updateUI() {
 
     // Update code view
     codeView->clear();
+    int currentPC = 0;
+    {
+        QString pcStr = debugger.getPC();
+        bool ok = false;
+        currentPC = QString(pcStr).remove('$').toInt(&ok, 16);
+        if (!ok) currentPC = 0;
+    }
     for (const QString &s : debugger.getCodeView()) {
         // s is "$00F03000: ADD R1,R2"
         QStringList parts = s.split(": ", QString::KeepEmptyParts);
-        QString bpMark;
+        QString bpMark, pcMark;
         if (parts.size() == 2) {
             // Extract address as int
             bool ok = false;
             int addr = parts[0].remove('$').toInt(&ok, 16);
             if (ok && debugger.hasBreakpoint(addr))
-                bpMark = "*"; // or "B" or any marker you like
-            QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << bpMark << parts[0] << parts[1]);
+                bpMark = "*";
+            if (ok && addr == currentPC)
+                pcMark = ">";
+            QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << bpMark << pcMark << parts[0] << parts[1]);
             if (!bpMark.isEmpty()) {
-                item->setForeground(0, QBrush(Qt::red)); // Set marker color to red
+                item->setForeground(0, QBrush(Qt::red));
                 QFont markerFont = codeView->font();
-                markerFont.setPointSizeF(markerFont.pointSizeF() * 1.3); // Increase by 30%
-                markerFont.setBold(true); // Make marker bold
+                markerFont.setPointSizeF(markerFont.pointSizeF() * 1.3);
+                markerFont.setBold(true);
                 item->setFont(0, markerFont);
+            }
+            // Make the PC marker bold and blue
+            if (!pcMark.isEmpty()) {
+                QFont pcFont = codeView->font();
+                pcFont.setBold(true);
+                item->setFont(1, pcFont); // Column 1 is pcMark
+                item->setForeground(1, QBrush(QColor(0, 70, 200))); // Nice blue
             }
             codeView->addTopLevelItem(item);
         } else {
-            codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << "" << s << ""));
+            codeView->addTopLevelItem(new QTreeWidgetItem(QStringList() << "" << "" << s << ""));
         }
     }
     codeView->resizeColumnToContents(0);
     codeView->resizeColumnToContents(1);
-    codeView->resizeColumnToContents(2);
+    //codeView->resizeColumnToContents(2);
+    //codeView->resizeColumnToContents(3);
 
     // Update status labels
     flagStatusLabel->setText(debugger.getFlags());
@@ -348,7 +365,7 @@ void MainWindow::onRegBank1ItemDoubleClicked(QTreeWidgetItem* item, int column) 
 void MainWindow::onCodeViewItemDoubleClicked(QTreeWidgetItem* item, int column) {
     Q_UNUSED(column);
     if (!item) return;
-    debugger.setBreakpoint(item->text(1)); // Use column 1 for address
+    debugger.setBreakpoint(item->text(2)); // Use column 2 for address
     updateUI();
 }
 

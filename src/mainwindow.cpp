@@ -220,18 +220,20 @@ void MainWindow::updateUI() {
         if (!ok) currentPC = 0;
     }
     for (const QString &s : debugger.getCodeView()) {
-        // s is "$00F03000: ADD R1,R2"
         QStringList parts = s.split(": ", QString::KeepEmptyParts);
         QString bpMark, pcMark;
         if (parts.size() == 2) {
-            // Extract address as int
+            QString addrStr = parts[0].trimmed();
+            QString addrForConv = addrStr;
+            addrForConv.remove('$');
             bool ok = false;
-            int addr = parts[0].remove('$').toInt(&ok, 16);
+            int addr = addrForConv.toInt(&ok, 16);
             if (ok && debugger.hasBreakpoint(addr))
                 bpMark = "*";
             if (ok && addr == currentPC)
                 pcMark = ">";
-            QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << bpMark << pcMark << parts[0] << parts[1]);
+            QString displayAddr = QString("$%1").arg(addr, 8, 16, QChar('0')).toUpper();
+            QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << bpMark << pcMark << displayAddr << parts[1]);
             if (!bpMark.isEmpty()) {
                 item->setForeground(0, QBrush(Qt::red));
                 QFont markerFont = codeView->font();
@@ -239,12 +241,11 @@ void MainWindow::updateUI() {
                 markerFont.setBold(true);
                 item->setFont(0, markerFont);
             }
-            // Make the PC marker bold and blue
             if (!pcMark.isEmpty()) {
                 QFont pcFont = codeView->font();
                 pcFont.setBold(true);
-                item->setFont(1, pcFont); // Column 1 is pcMark
-                item->setForeground(1, QBrush(QColor(0, 70, 200))); // Nice blue
+                item->setFont(1, pcFont);
+                item->setForeground(1, QBrush(QColor(0, 70, 200)));
             }
             codeView->addTopLevelItem(item);
         } else {

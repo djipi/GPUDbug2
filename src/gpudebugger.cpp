@@ -157,11 +157,10 @@ QStringList GPUDebugger::getRegBank(int bank) const {
         int value = 0;
         if (bank == 0 && regBank0.size() == 32) value = regBank0[i];
         else if (bank == 1 && regBank1.size() == 32) value = regBank1[i];
-        // Register name: no space, always R0..R31; value: aligned to 8 hex digits
-        list << QString("R%1: $%2")
-            .arg(i, 0, 10) // width 0: no padding, so no space in name
-            .arg(value, 8, 16, QChar('0'))
-            .toUpper();
+        // Register label in lowercase, value in uppercase
+        list << QString("r%1: $%2")
+            .arg(i, 0, 10)
+            .arg(QString::number(value, 16).toUpper().rightJustified(8, '0'));
     }
     return list;
 }
@@ -362,7 +361,9 @@ QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {
         case 11: instr = QString("xor    r%1,r%2").arg(reg1).arg(reg2); break;
         default: instr = "unknown"; break;
         }
-        result << QString("$%1: %2").arg(adrs, 8, 16, QChar('0')).arg(instr);
+        // Format address as $XXXXXXXX in uppercase
+        QString addrStr = QString("$%1").arg(adrs, 8, 16, QChar('0')).toUpper();
+        result << QString("%1: %2").arg(addrStr).arg(instr);
         size -= ecart;
         adrs += ecart;
     }

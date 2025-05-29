@@ -69,7 +69,7 @@ void MainWindow::setupUI() {
 
     // --- Center: Code view ---
     QVBoxLayout *centerLayout = new QVBoxLayout;
-    codeLabel = new QLabel("Code");
+    codeLabel = new QLabel("Disassembly Code");
     codeView = new QTreeWidget;
     codeView->setColumnCount(2); // Two sub-columns
     codeView->setHeaderHidden(true); // Hide header for no visual separation
@@ -88,11 +88,11 @@ void MainWindow::setupUI() {
 
     loadBinBtn = new QPushButton("Load BIN");
     loadAddressEdit = new QLineEdit("$00F03000");
-    label4 = new QLabel("at");
+    //label4 = new QLabel("at");
     pcEdit = new QLineEdit("$00F03000");
     label5 = new QLabel("PC:");
     runBtn = new QPushButton("Run (F9)");
-    stepBtn = new QPushButton("Step (F10)");
+    stepBtn = new QPushButton("Step in (F10)");
     skipBtn = new QPushButton("Skip (F11)");
     resetBtn = new QPushButton("Reset (F12)");
     exitBtn = new QPushButton("Exit");
@@ -102,7 +102,7 @@ void MainWindow::setupUI() {
     g_hidataLabel = new QLabel("G_HIDATA: $00000000");
     g_remainLabel = new QLabel("G_REMAIN: $00000000");
     jumpLabel = new QLabel("Jump: $00000000");
-    gpubpLabel = new QLabel("BP: $00000000");
+    gpubpLabel = new QLabel("Breakpoint: $00000000");
 
     // Add widgets to the right layout (after GPU/DSP mode)
     rightLayout->addWidget(loadBinBtn);
@@ -121,6 +121,8 @@ void MainWindow::setupUI() {
     pcLayout->addWidget(pcEdit);
     rightLayout->addLayout(pcLayout);
 
+    rightLayout->addWidget(gpubpLabel);
+
     rightLayout->addWidget(runBtn);
     rightLayout->addWidget(stepBtn);
     rightLayout->addWidget(skipBtn);
@@ -130,7 +132,6 @@ void MainWindow::setupUI() {
     rightLayout->addWidget(g_hidataLabel);
     rightLayout->addWidget(g_remainLabel);
     rightLayout->addWidget(jumpLabel);
-    rightLayout->addWidget(gpubpLabel);
 
     // Add stretch to push the Exit button to the bottom
     rightLayout->addStretch();
@@ -227,7 +228,7 @@ void MainWindow::updateUI() {
     g_hidataLabel->setText(QString("G_HIDATA: %1").arg(debugger.getHiData()));
     g_remainLabel->setText(QString("G_REMAIN: %1").arg(debugger.getRemain()));
     jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
-    gpubpLabel->setText(QString("BP: %1").arg(debugger.getBP()));
+    gpubpLabel->setText(QString("Breakpoint: %1").arg(debugger.getBP()));
     pcEdit->setText(debugger.getPC());
     // Update progress bar
     progress->setValue(debugger.getProgress());

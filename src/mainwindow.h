@@ -57,7 +57,7 @@ private slots:
 
 private:
     // UI widgets
-    QLabel *regBank0Label, *regBank1Label, *codeLabel, *flagStatusLabel, *gpubpLabel, *g_hidataLabel, *g_remainLabel, *jumpLabel, *label4, *label5;
+    QLabel *regBank0Label, *regBank1Label, *codeLabel, *flagStatusLabel, *gpubpLabel, *g_hidataLabel, *g_remainLabel, *jumpLabel, /* , *label4 */ *label5;
     QTreeWidget *regBank0, *regBank1, *codeView;
     QPushButton *loadBinBtn, *runBtn, *stepBtn, *skipBtn, *resetBtn, *exitBtn;
     QLineEdit *loadAddressEdit, *pcEdit;

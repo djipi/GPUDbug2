@@ -281,7 +281,8 @@ void MainWindow::onLoadBin() {
         if (!ok) address = 0;
         if (debugger.loadBin(fileName, address)) {
             debugger.reset();
-            updateUI(); // Only call updateUI()
+            debugger.setPC(QString("$%1").arg(address, 8, 16, QChar('0')).toUpper()); // Set PC to loading address
+            updateUI();
         } else {
             QMessageBox::warning(this, "Error", "Failed to load BIN file.");
         }

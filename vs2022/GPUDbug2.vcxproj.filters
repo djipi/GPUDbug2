@@ -47,10 +47,8 @@
     <QtMoc Include="..\src\mainwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\gpudebugger.h">
+    <QtMoc Include="..\src\gpudebugger.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
   </ItemGroup>
 </Project>

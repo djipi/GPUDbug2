@@ -109,7 +109,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\gpudebugger.h" />
+    <QtMoc Include="..\src\gpudebugger.h" />
     <QtMoc Include="..\src\mainwindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

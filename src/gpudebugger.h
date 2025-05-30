@@ -4,13 +4,17 @@
 #include <vector>
 #include <cstdint>
 #include <QSet> // Include QSet for breakpoints
+#include <QObject> // Include QObject for signals and slots
 
 extern const int MemorySize;
 extern std::vector<uint8_t> MemoryBuffer;
 
-class GPUDebugger {
+class GPUDebugger : public QObject { // Ensure QObject is a base class
+    Q_OBJECT // Required for Qt's meta-object system
+
 public:
-    GPUDebugger();
+    explicit GPUDebugger(QObject* parent = nullptr);
+    ~GPUDebugger();
     bool loadBin(const QString& filename, int address);
     void reset();
     void step();
@@ -44,6 +48,9 @@ public:
 
     QStringList disassemble(int loadAddress, int programSize) const;
     int getProgramSize() const;
+
+signals:
+    void disassemblyProgress(int percent);
 
 private:
     int progress;

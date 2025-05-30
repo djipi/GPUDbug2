@@ -11,10 +11,22 @@ const int MemorySize = 0xF1D000; // Address limit for the RISC processor
 std::vector<uint8_t> MemoryBuffer(MemorySize);
 
 // Constructor: Initialize the state
-GPUDebugger::GPUDebugger() 
-    : isReadyToReset(false), isReadyToRun(false), isReadyToStep(false), isReadyToSkip(false), progress(0), pc(0), programSize(0) {
+GPUDebugger::GPUDebugger(QObject* parent)
+    : QObject(parent), // Initialize the QObject base class
+      isReadyToReset(false),
+      isReadyToRun(false),
+      isReadyToStep(false),
+      isReadyToSkip(false),
+      progress(0),
+      pc(0),
+      programSize(0) {
     regBank0.resize(32, 0); // Initialize regBank0 with 32 elements, all set to 0
     regBank1.resize(32, 0); // Initialize regBank1 with 32 elements, all set to 0
+}
+
+// Destructor: Clean up resources if needed
+GPUDebugger::~GPUDebugger() {
+    // No dynamic memory to clean up, but can be used for future extensions
 }
 
 // Implementation of canReset
@@ -111,7 +123,6 @@ bool GPUDebugger::loadBin(const QString& filename, int address) {
 
 void GPUDebugger::reset() {
     pc = loadAddress; // Set PC to the last loading address
-    progress = 0;
     flagZ = 0;
     flagN = 0;
     flagC = 0;
@@ -275,6 +286,12 @@ QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {
     const uint8_t* walk = MemoryBuffer.data() + loadAddress;
     int size = programSize;
     int adrs = loadAddress;
+
+    GPUDebugger* self = const_cast<GPUDebugger*>(this);
+
+    int total = (programSize > 0) ? programSize : 1;
+    int processed = 0;
+
     while (size > 1) {
         int ecart = 0;
         uint8_t w1 = *walk++;
@@ -368,7 +385,16 @@ QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {
         result << QString("%1: %2").arg(addrStr).arg(instr);
         size -= ecart;
         adrs += ecart;
+        processed += ecart;
+
+        // Update progress (0-99%)
+        int percent = (processed * 100) / total;
+        self->progress = percent;
+        emit self->disassemblyProgress(percent); // Notify UI
     }
+    // Ensure progress is 100% at the end
+    self->progress = 100;
+    emit self->disassemblyProgress(100); // Ensure 100% at end
     return result;
 }
 

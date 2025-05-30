@@ -19,6 +19,9 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
     updateUI();
+
+    // Example connection, typically in MainWindow constructor:
+     connect(&debugger, &GPUDebugger::disassemblyProgress, progress, &QProgressBar::setValue);
 }
 
 // Destructor (no special cleanup needed)

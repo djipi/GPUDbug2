@@ -58,6 +58,10 @@ private:
     QStringList codeViewLines;
     int breakpointAddress = 0;
     QSet<int> breakpoints; // Stores all breakpoints
+    int loadAddress = 0; // Stores the last loading address
+    int flagZ = 0;
+    int flagN = 0;
+    int flagC = 0;
 };
 
 // Declare GetJumpFlag function

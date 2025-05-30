@@ -99,6 +99,8 @@ bool GPUDebugger::loadBin(const QString& filename, int address) {
         std::copy(all.begin(), all.end(), MemoryBuffer.begin() + readOffset);
     }
 
+    loadAddress = LoadAddress; // <-- Store the final load address
+
     file.close();
     isReadyToRun = true;
     isReadyToStep = true;
@@ -108,20 +110,20 @@ bool GPUDebugger::loadBin(const QString& filename, int address) {
 }
 
 void GPUDebugger::reset() {
-    // Reset the debugger state
-    isReadyToRun = false;
-    isReadyToStep = false;
-    isReadyToSkip = false; // Disable skipping after reset
-    pc = 0;
+    pc = loadAddress; // Set PC to the last loading address
     progress = 0;
+    flagZ = 0;
+    flagN = 0;
+    flagC = 0;
+    std::fill(regBank0.begin(), regBank0.end(), 0);
+    std::fill(regBank1.begin(), regBank1.end(), 0);
     // Reset logic...
-    isReadyToReset = false; // Update the state after reset
 }
 
 void GPUDebugger::step() {
     // Implementation for stepping one instruction
     if (isReadyToStep) {
-        pc += 4; // Example: Increment PC by 4
+    //    pc += 4; // Example: Increment PC by 4
     }
 }
 
@@ -135,7 +137,7 @@ void GPUDebugger::run() {
 void GPUDebugger::skip() {
     // Implementation for skipping one instruction
     if (isReadyToSkip) {
-        pc += 4; // Example: Increment PC by 4 without execution
+        pc += 4; // Increment PC by 4 without execution
     }
 }
 
@@ -170,7 +172,7 @@ QStringList GPUDebugger::getCodeView() const {
 }
 
 QString GPUDebugger::getFlags() const {
-    return "Flags: Z:0 N:0 C:0";
+    return QString("Flags: Z:%1 N:%2 C:%3").arg(flagZ).arg(flagN).arg(flagC);
 }
 
 QString GPUDebugger::getPC() const {

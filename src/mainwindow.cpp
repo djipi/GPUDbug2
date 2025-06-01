@@ -20,8 +20,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
     updateUI();
 
-    // Example connection, typically in MainWindow constructor:
-     connect(&debugger, &GPUDebugger::disassemblyProgress, progress, &QProgressBar::setValue);
+	// Connection for disassembly progress updates
+    connect(&debugger, &GPUDebugger::disassemblyProgress, progress, &QProgressBar::setValue);
 }
 
 // Destructor (no special cleanup needed)
@@ -163,9 +163,13 @@ void MainWindow::setupUI() {
     connect(regBank0, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank0ItemDoubleClicked);
     connect(regBank1, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank1ItemDoubleClicked);
     connect(codeView, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onCodeViewItemDoubleClicked);
+    connect(memWarn, &QCheckBox::toggled, &debugger, &GPUDebugger::setMemoryWarningEnabled);
 
     regBank0->setHeaderHidden(true);
     regBank1->setHeaderHidden(true);
+
+    // Optionally, set the initial state
+    debugger.setMemoryWarningEnabled(memWarn->isChecked());
 }
 
 // Updates all UI widgets to reflect the current state of the debugger
@@ -217,7 +221,7 @@ void MainWindow::updateUI() {
     codeView->clear();
     int currentPC = 0;
     {
-        QString pcStr = debugger.getPC();
+        QString pcStr = debugger.getPCString();
         bool ok = false;
         currentPC = QString(pcStr).remove('$').toInt(&ok, 16);
         if (!ok) currentPC = 0;
@@ -266,7 +270,7 @@ void MainWindow::updateUI() {
     g_remainLabel->setText(QString("G_REMAIN: %1").arg(debugger.getRemain()));
     jumpLabel->setText(QString("Jump: %1").arg(debugger.getJump()));
     gpubpLabel->setText(QString("Breakpoint: %1").arg(debugger.getBP()));
-    pcEdit->setText(debugger.getPC());
+    pcEdit->setText(debugger.getPCString());
     // Update progress bar
     progress->setValue(debugger.getProgress());
     // Enable/disable buttons based on debugger state
@@ -286,7 +290,7 @@ void MainWindow::onLoadBin() {
         if (!ok) address = 0;
         if (debugger.loadBin(fileName, address)) {
             debugger.reset();
-            debugger.setPC(QString("$%1").arg(address, 8, 16, QChar('0')).toUpper()); // Set PC to loading address
+            debugger.setStringPC(QString("$%1").arg(address, 8, 16, QChar('0')).toUpper()); // Set PC to loading address
             updateUI();
         } else {
             QMessageBox::warning(this, "Error", "Failed to load BIN file.");
@@ -295,10 +299,27 @@ void MainWindow::onLoadBin() {
 }
 
 // Slot: Run the GPU program
-void MainWindow::onRun() { debugger.run(); updateUI(); }
+void MainWindow::onRun() {
+    // Disable buttons immediately when Run is clicked
+    runBtn->setEnabled(false);
+    stepBtn->setEnabled(false);
+    skipBtn->setEnabled(false);
+    resetBtn->setEnabled(false);
+
+    debugger.run();
+    updateUI();
+}
 
 // Slot: Step one instruction
-void MainWindow::onStep() { debugger.step(); updateUI(); }
+void MainWindow::onStep() {
+    int w = debugger.ReadWord(debugger.getPCValue(), true);
+    if (w != -1) {
+        //noPCrefresh = false;
+        //GPUStep((uint16_t)w, true);
+        debugger.step((uint16_t)w, true);
+        updateUI();
+    }
+}
 
 // Slot: Skip one instruction (without execution)
 void MainWindow::onSkip() { debugger.skip(); updateUI(); }
@@ -325,7 +346,7 @@ void MainWindow::onDSPMode() {
 
 // Slot: Update PC from the line edit
 void MainWindow::onPCEditReturnPressed() {
-    debugger.setPC(pcEdit->text());
+    debugger.setStringPC(pcEdit->text());
     updateUI();
 }
 

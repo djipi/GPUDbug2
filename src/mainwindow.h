@@ -25,6 +25,7 @@ public:
 protected:
     // Override the eventFilter function from QObject
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     // Slot for loading a BIN file

@@ -126,20 +126,23 @@ bool Debugger::loadBin(const QString& filename, int address) {
     isReadyToRun = true;
     isReadyToStep = true;
     isReadyToSkip = true;
+    isReadyToReset = true;
     codeViewLines = disassemble(address, programSize);
     return true;
 }
 
 void Debugger::reset() {
-    CurRegBank = 0; // Set current register bank to 0
-    pc = loadAddress; // Set PC to the last loading address
-    flagZ = 0;
-    flagN = 0;
-    flagC = 0;
-    std::fill(regBank[0].begin(), regBank[0].end(), 0);
-    std::fill(regBank[1].begin(), regBank[1].end(), 0);
-    jumpbuffered = false;
-    // Reset logic...
+    if (isReadyToReset) {
+        CurRegBank = 0; // Set current register bank to 0
+        pc = loadAddress; // Set PC to the last loading address
+        flagZ = 0;
+        flagN = 0;
+        flagC = 0;
+        std::fill(regBank[0].begin(), regBank[0].end(), 0);
+        std::fill(regBank[1].begin(), regBank[1].end(), 0);
+        jumpbuffered = false;
+        // Reset logic...
+    }
 }
 
 void Debugger::step(uint16_t w, bool exec) {

@@ -14,6 +14,7 @@
 #include <QInputDialog> // Add this include at the top
 #include <QEvent>
 #include <QListView> // Include QListView
+#include <QKeyEvent> // Include QKeyEvent
 
 // MainWindow constructor: sets up the UI and initializes the display
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -94,10 +95,10 @@ void MainWindow::setupUI() {
     //label4 = new QLabel("at");
     pcEdit = new QLineEdit("$00F03000");
     label5 = new QLabel("PC:");
-    runBtn = new QPushButton("Run (F9)");
-    stepBtn = new QPushButton("Step in (F10)");
-    skipBtn = new QPushButton("Skip (F11)");
-    resetBtn = new QPushButton("Reset (F12)");
+    runBtn = new QPushButton("Launch (F5)");
+    stepBtn = new QPushButton("Step into (F11)");
+    skipBtn = new QPushButton("Skip (F7)");
+    resetBtn = new QPushButton("Restart (F3)");
     exitBtn = new QPushButton("Exit");
     memWarn = new QCheckBox("No memory warning");
     progress = new QProgressBar;
@@ -478,4 +479,30 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
         }
     }
     return QMainWindow::eventFilter(obj, event);
+}
+
+// Key press event handler for shortcut keys
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    if (event->modifiers() == Qt::NoModifier) {
+        switch (event->key()) {
+        case Qt::Key_F5:
+            onRun();
+            break;
+        case Qt::Key_F11:
+            onStep();
+            break;
+        case Qt::Key_F7:
+            onSkip();
+            break;
+        case Qt::Key_F3:
+            onReset();
+            break;
+        default:
+            QMainWindow::keyPressEvent(event);
+            return;
+        }
+        event->accept();
+    } else {
+        QMainWindow::keyPressEvent(event);
+    }
 }

@@ -67,6 +67,14 @@
     <ClCompile>
       <ObjectFileName>$(IntDir)\obj\</ObjectFileName>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>powershell -Command "$v = Get-Content '..\VERSION'; $n = git rev-list --count HEAD; (Get-Content ..\version.h.in) -replace '@APP_VERSION@', \"$v.$n\" -replace '@APP_BUILD_DATE@', (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Set-Content ..\src\version.h"</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Command>powershell -Command "$v = Get-Content '..\VERSION'; $n = git rev-list --count HEAD; (Get-Content ..\version.h.in) -replace '@APP_VERSION@', \"$v.$n\" -replace '@APP_BUILD_DATE@', (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Set-Content ..\src\version.h"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -116,6 +124,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="..\VERSION" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\src\debugger.h" />

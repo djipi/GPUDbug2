@@ -6,7 +6,6 @@ Atari Jaguar GPU|DSP simulator & debugger
 * MinGW 64-bit
 
 ## Project
-Project is still Work in Progress and not fully fonctional.
 * Visual Studio 2022 64-bit
 * Makefile
 

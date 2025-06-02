@@ -586,6 +586,16 @@ bool GPUDebugger::canSkip() const {
 }
 
 
+// Get the value of a specific register in the specified bank (0 or 1)
+int GPUDebugger::getRegBankRegisterValue(int bank, int reg) const {
+    if ((bank < 0) || (bank > 1) || (reg < 0) || (reg >= 32)) {
+        qDebug() << "Invalid bank or register index:" << bank << reg;
+        return 0; // Return 0 for invalid access
+    }
+	return regBank[bank][reg]; // Return the value of the specified register
+}
+
+
 // Get the register bank as a list of strings for the specified bank (0 or 1)
 QStringList GPUDebugger::getRegBank(int bank) const {
     QStringList list;

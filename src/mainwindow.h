@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include "gpudebugger.h"
+#include <vector>
 
 // MainWindow: The main Qt5 window for the Jaguar GPU Simulator/Debugger.
 // This class sets up the UI and connects user actions to the GPUDebugger logic.
@@ -72,4 +73,7 @@ private:
     void setupUI();
     // Updates the UI to reflect the current debugger state
     void updateUI();
+
+    std::vector<int> prevRegBank0;
+    std::vector<int> prevRegBank1;
 };

@@ -43,8 +43,8 @@ void MainWindow::setupUI() {
     regBank0Label->installEventFilter(this);
     regBank0 = new QTreeWidget;
     regBank0->setHeaderHidden(true);
-    regBank0->setMinimumWidth(300); // Set minimum width for readability
-    regBank0->setColumnCount(2);
+    regBank0->setMinimumWidth(400); // Set minimum width for readability
+    regBank0->setColumnCount(3);
     regBank0->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     regBank0->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     regBank0->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -58,8 +58,8 @@ void MainWindow::setupUI() {
     regBank1Label->installEventFilter(this);
     regBank1 = new QTreeWidget;
     regBank1->setHeaderHidden(true);
-    regBank1->setMinimumWidth(300); // Set minimum width for readability
-    regBank1->setColumnCount(2);
+    regBank1->setMinimumWidth(400); // Set minimum width for readability
+    regBank1->setColumnCount(3);
     regBank1->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     regBank1->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     regBank1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -170,33 +170,67 @@ void MainWindow::setupUI() {
 
     // Optionally, set the initial state
     debugger.setMemoryWarningEnabled(memWarn->isChecked());
+
+    prevRegBank0.resize(32);
+    prevRegBank1.resize(32);
 }
 
 // Updates all UI widgets to reflect the current state of the debugger
 void MainWindow::updateUI() {
-    // Update register banks
+    // Update register banks with change highlighting
     regBank0->clear();
-    for (const QString &s : debugger.getRegBank(0)) {
-        // Split s into two parts, e.g., "R0: $00000000"
-        QStringList parts = s.split(": ", QString::KeepEmptyParts);
+    QStringList currentBank0 = debugger.getRegBank(0);
+    for (int i = 0; i < currentBank0.size(); ++i) {
+        QStringList parts = currentBank0[i].split(": ", QString::KeepEmptyParts);
+        QString mark = "";
+        if ((i < prevRegBank0.size()) && (prevRegBank0[i] != debugger.getRegBankRegisterValue(0, i))) {
+            mark = "*";
+            prevRegBank0[i] = debugger.getRegBankRegisterValue(0, i);
+        }
+        QTreeWidgetItem* item;
         if (parts.size() == 2)
-            regBank0->addTopLevelItem(new QTreeWidgetItem(parts));
+            item = new QTreeWidgetItem(QStringList() << mark << parts[0] << parts[1]);
         else
-            regBank0->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+            item = new QTreeWidgetItem(QStringList() << mark << currentBank0[i] << "");
+        if (mark == "*") {
+            QFont font = item->font(0);
+            font.setBold(true);
+            item->setFont(0, font);
+            item->setForeground(0, QBrush(Qt::green));
+        }
+        regBank0->addTopLevelItem(item);
     }
+    //prevRegBank0 = std::vector<int>(currentBank0.begin(), currentBank0.end());
     regBank0->resizeColumnToContents(0);
     regBank0->resizeColumnToContents(1);
+    regBank0->resizeColumnToContents(2);
 
     regBank1->clear();
-    for (const QString &s : debugger.getRegBank(1)) {
-        QStringList parts = s.split(": ", QString::KeepEmptyParts);
+    QStringList currentBank1 = debugger.getRegBank(1);
+    for (int i = 0; i < currentBank1.size(); ++i) {
+        QStringList parts = currentBank1[i].split(": ", QString::KeepEmptyParts);
+        QString mark = "";
+        if ((i < prevRegBank1.size()) && (prevRegBank1[i] != debugger.getRegBankRegisterValue(1, i))) {
+            mark = "*";
+            prevRegBank1[i] = debugger.getRegBankRegisterValue(1, i);
+        }
+        QTreeWidgetItem* item;
         if (parts.size() == 2)
-            regBank1->addTopLevelItem(new QTreeWidgetItem(parts));
+            item = new QTreeWidgetItem(QStringList() << mark << parts[0] << parts[1]);
         else
-            regBank1->addTopLevelItem(new QTreeWidgetItem(QStringList() << s << ""));
+            item = new QTreeWidgetItem(QStringList() << mark << currentBank1[i] << "");
+        if (mark == "*") {
+            QFont font = item->font(0);
+            font.setBold(true);
+            item->setFont(0, font);
+            item->setForeground(0, QBrush(Qt::green));
+        }
+        regBank1->addTopLevelItem(item);
     }
+    //prevRegBank1 = std::vector<int>(currentBank1.begin(), currentBank1.end());
     regBank1->resizeColumnToContents(0);
     regBank1->resizeColumnToContents(1);
+    regBank1->resizeColumnToContents(2);
 
     // Ensure all register lines are visible without vertical scroll bar
     int regCount = regBank0->topLevelItemCount();
@@ -325,7 +359,12 @@ void MainWindow::onStep() {
 void MainWindow::onSkip() { debugger.skip(); updateUI(); }
 
 // Slot: Reset the GPU state
-void MainWindow::onReset() { debugger.reset(); updateUI(); }
+void MainWindow::onReset() {
+    debugger.reset();
+    std::fill(prevRegBank0.begin(), prevRegBank0.end(), 0);
+    std::fill(prevRegBank1.begin(), prevRegBank1.end(), 0);
+    updateUI();
+}
 
 // Slot: Exit the application
 void MainWindow::onExit() { close(); }
@@ -354,7 +393,7 @@ void MainWindow::onPCEditReturnPressed() {
 void MainWindow::onRegBank0ItemDoubleClicked(QTreeWidgetItem* item, int column) {
     if (column != 1) return; // Only allow editing the value column
     int regIndex = regBank0->indexOfTopLevelItem(item);
-    QString currentValue = item->text(1);
+    QString currentValue = item->text(2);
     bool ok = false;
     QInputDialog dlg(this);
     dlg.setWindowTitle("Edit Register (Bank 0)");
@@ -373,7 +412,7 @@ void MainWindow::onRegBank0ItemDoubleClicked(QTreeWidgetItem* item, int column) 
 void MainWindow::onRegBank1ItemDoubleClicked(QTreeWidgetItem* item, int column) {
     if (column != 1) return; // Only allow editing the value column
     int regIndex = regBank1->indexOfTopLevelItem(item);
-    QString currentValue = item->text(1);
+    QString currentValue = item->text(2);
     bool ok = false;
     QInputDialog dlg(this);
     dlg.setWindowTitle("Edit Register (Bank 1)");

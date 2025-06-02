@@ -25,6 +25,7 @@ public:
 
     // Data for UI
     QStringList getRegBank(int bank) const;
+	int getRegBankRegisterValue(int bank, int reg) const;
     QStringList getCodeView() const;
     QString getFlags() const;
     QString getPCString() const;
@@ -44,7 +45,7 @@ public:
     void setStringPC(const QString& pcValue);
     void setGPUMode(bool isGPUMode);
     void setBreakpoint(const QString& address);
-    bool hasBreakpoint(int address) const; // <-- Add this declaration
+    bool hasBreakpoint(int address) const;
 
     void editRegister(int bank, const QString& value);
 

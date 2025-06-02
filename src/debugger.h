@@ -10,12 +10,12 @@
 extern const int MemorySize;
 extern std::vector<uint8_t> MemoryBuffer;
 
-class GPUDebugger : public QObject { // Ensure QObject is a base class
+class Debugger : public QObject { // Ensure QObject is a base class
     Q_OBJECT // Required for Qt's meta-object system
 
 public:
-    explicit GPUDebugger(QObject* parent = nullptr);
-    ~GPUDebugger();
+    explicit Debugger(QObject* parent = nullptr);
+    ~Debugger();
     bool loadBin(const QString& filename, int address);
     void reset();
     void step(uint16_t w, bool exec);
@@ -107,8 +107,6 @@ private:
     bool CheckInternalRam(int memadrs);
     void CheckGPUPC();
     void RunGPU();
+    std::string GetJumpFlag(uint8_t flag) const;
+    std::string IntToHex(int value, int width) const;
 };
-
-// Declare GetJumpFlag function
-std::string GetJumpFlag(uint8_t flag);
-std::string IntToHex(int value, int width);

@@ -14,7 +14,6 @@ set(SOURCES
     src/main.cpp
     src/mainwindow.cpp
     src/gpudebugger.cpp
-    src/Unit1.cpp
 )
 
 set(HEADERS

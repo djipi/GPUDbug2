@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     updateUI();
 
 	// Connection for disassembly progress updates
-    connect(&debugger, &GPUDebugger::disassemblyProgress, progress, &QProgressBar::setValue);
+    connect(&debugger, &Debugger::disassemblyProgress, progress, &QProgressBar::setValue);
 }
 
 // Destructor (no special cleanup needed)
@@ -163,7 +163,7 @@ void MainWindow::setupUI() {
     connect(regBank0, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank0ItemDoubleClicked);
     connect(regBank1, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onRegBank1ItemDoubleClicked);
     connect(codeView, &QTreeWidget::itemDoubleClicked, this, &MainWindow::onCodeViewItemDoubleClicked);
-    connect(memWarn, &QCheckBox::toggled, &debugger, &GPUDebugger::setMemoryWarningEnabled);
+    connect(memWarn, &QCheckBox::toggled, &debugger, &Debugger::setMemoryWarningEnabled);
 
     regBank0->setHeaderHidden(true);
     regBank1->setHeaderHidden(true);

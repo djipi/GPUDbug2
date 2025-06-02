@@ -20,7 +20,7 @@ LDFLAGS  = $(QT_LIB)
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 HDRS = $(wildcard $(SRC_DIR)/*.h)
 
-MOC_HDRS = $(filter %mainwindow.h,$(HDRS))
+MOC_HDRS = $(filter %mainwindow.h %debugger.h,$(HDRS))
 MOC_SRCS = $(patsubst $(SRC_DIR)/%.h,$(MOC_DIR)/moc_%.cpp,$(MOC_HDRS))
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o) $(MOC_SRCS:$(MOC_DIR)/%.cpp=$(BUILD_DIR)/%.o)

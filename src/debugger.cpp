@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <functional>
-#include "gpudebugger.h"
+#include "debugger.h"
 
 // Add this near the top, after the includes:
 template <typename T>
@@ -20,7 +20,7 @@ const int MemorySize = 0xF1D000; // Address limit for the RISC processor
 std::vector<uint8_t> MemoryBuffer(MemorySize);
 
 // Constructor: Initialize the state
-GPUDebugger::GPUDebugger(QObject* parent)
+Debugger::Debugger(QObject* parent)
     : QObject(parent), // Initialize the QObject base class
       isReadyToReset(false),
       isReadyToRun(false),
@@ -34,18 +34,18 @@ GPUDebugger::GPUDebugger(QObject* parent)
 }
 
 // Destructor: Clean up resources if needed
-GPUDebugger::~GPUDebugger() {
+Debugger::~Debugger() {
     // No dynamic memory to clean up, but can be used for future extensions
 }
 
 // Implementation of canReset
-bool GPUDebugger::canReset() const {
+bool Debugger::canReset() const {
     // Logic to determine if reset is allowed
     // For example, allow reset if the debugger is not running
     return isReadyToReset;
 }
 
-bool GPUDebugger::loadBin(const QString& filename, int address) {
+bool Debugger::loadBin(const QString& filename, int address) {
     int LoadAddress = address;
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -130,7 +130,7 @@ bool GPUDebugger::loadBin(const QString& filename, int address) {
     return true;
 }
 
-void GPUDebugger::reset() {
+void Debugger::reset() {
     CurRegBank = 0; // Set current register bank to 0
     pc = loadAddress; // Set PC to the last loading address
     flagZ = 0;
@@ -142,7 +142,7 @@ void GPUDebugger::reset() {
     // Reset logic...
 }
 
-void GPUDebugger::step(uint16_t w, bool exec) {
+void Debugger::step(uint16_t w, bool exec) {
     // Implementation for stepping one instruction
     if (isReadyToStep) {
         uint8_t opcode = w >> 10;
@@ -504,7 +504,7 @@ void GPUDebugger::step(uint16_t w, bool exec) {
 
 
 // Check if the GPU Program Counter is within valid bounds
-void GPUDebugger::CheckGPUPC() {
+void Debugger::CheckGPUPC() {
     if ((pc < 0) || (pc > MemorySize)) {
         std::string str = "GPU PC outside allocated buffer !\nAddress = $" + IntToHex(pc, 8) + "\nResetting GPU !";
         QMessageBox::critical(nullptr, "Error", QString::fromStdString(str));
@@ -513,7 +513,7 @@ void GPUDebugger::CheckGPUPC() {
 }
 
 
-void GPUDebugger::RunGPU() {
+void Debugger::RunGPU() {
     gpurun = true;
     WriteLong(G_CTRL, ReadLong(G_CTRL) | 1);
     while (gpurun) {
@@ -538,7 +538,7 @@ void GPUDebugger::RunGPU() {
 
 
 // Run the program until a breakpoint is hit or the end of the program is reached
-void GPUDebugger::run() {
+void Debugger::run() {
     // Implementation for running the program
     if (isReadyToRun) {
         if (!gpurun) {
@@ -560,7 +560,7 @@ void GPUDebugger::run() {
 
 
 // Step through one instruction
-void GPUDebugger::skip() {
+void Debugger::skip() {
     // Implementation for skipping one instruction
     if (isReadyToSkip) {
         pc += 4; // Increment PC by 4 without execution
@@ -569,25 +569,25 @@ void GPUDebugger::skip() {
 
 
 // check if the program can be run
-bool GPUDebugger::canRun() const {
+bool Debugger::canRun() const {
     return isReadyToRun;
 }
 
 
 // Check if the debugger can step through instructions
-bool GPUDebugger::canStep() const {
+bool Debugger::canStep() const {
     return isReadyToStep;
 }
 
 
 // Check if the debugger can skip the current instruction
-bool GPUDebugger::canSkip() const {
+bool Debugger::canSkip() const {
     return isReadyToSkip; // Return whether skipping is allowed
 }
 
 
 // Get the value of a specific register in the specified bank (0 or 1)
-int GPUDebugger::getRegBankRegisterValue(int bank, int reg) const {
+int Debugger::getRegBankRegisterValue(int bank, int reg) const {
     if ((bank < 0) || (bank > 1) || (reg < 0) || (reg >= 32)) {
         qDebug() << "Invalid bank or register index:" << bank << reg;
         return 0; // Return 0 for invalid access
@@ -597,7 +597,7 @@ int GPUDebugger::getRegBankRegisterValue(int bank, int reg) const {
 
 
 // Get the register bank as a list of strings for the specified bank (0 or 1)
-QStringList GPUDebugger::getRegBank(int bank) const {
+QStringList Debugger::getRegBank(int bank) const {
     QStringList list;
     for (int i = 0; i < 32; ++i) {
         int value = 0;
@@ -613,67 +613,67 @@ QStringList GPUDebugger::getRegBank(int bank) const {
 
 
 // Get the code view as a list of strings (disassembled instructions)
-QStringList GPUDebugger::getCodeView() const {
+QStringList Debugger::getCodeView() const {
     return codeViewLines;
 }
 
 
 // Get the current flags as a formatted string
-QString GPUDebugger::getFlags() const {
+QString Debugger::getFlags() const {
     return QString("Flags: Z:%1 N:%2 C:%3").arg(flagZ).arg(flagN).arg(flagC);
 }
 
 
 // Get the current program counter (PC) as a formatted string
-QString GPUDebugger::getPCString() const {
+QString Debugger::getPCString() const {
     return QString("$%1").arg(pc, 8, 16, QChar('0')).toUpper();
 }
 
 
 // Get the current value program counter (PC)
-int GPUDebugger::getPCValue() const {
+int Debugger::getPCValue() const {
     return pc;
 }
 
 
 // Get the jump address (JMPPC) as a formatted string
-QString GPUDebugger::getJump() const {
+QString Debugger::getJump() const {
     return QString("$%1").arg(JMPPC, 8, 16, QChar('0')).toUpper();
 }
 
 
 // Get the remaining data register value (G_REMAIN) as a formatted string
-QString GPUDebugger::getRemain() const {
+QString Debugger::getRemain() const {
     return "$00000000";
 }
 
 
 // Get the high data register value (G_HIDATA) as a formatted string
-QString GPUDebugger::getHiData() const {
+QString Debugger::getHiData() const {
     return "$00000000";
 }
 
 
 // Get the current breakpoint address in a formatted string
-QString GPUDebugger::getBP() const {
+QString Debugger::getBP() const {
     return QString("$%1").arg(breakpointAddress, 8, 16, QChar('0')).toUpper();
 }
 
 
 // Get the current progress of the debugger (e.g., for disassembly or execution)
-int GPUDebugger::getProgress() const {
+int Debugger::getProgress() const {
     return progress;
 }
 
 
 // Get the size of the program loaded into memory
-int GPUDebugger::getProgramSize() const {
+int Debugger::getProgramSize() const {
     return programSize;
 }
 
 
 // Set the PC (Program Counter) to the specified value
-void GPUDebugger::setStringPC(const QString& pcValue) {
+void Debugger::setStringPC(const QString& pcValue) {
     bool ok = false;
     QString modifiablePCValue = pcValue; // Create a modifiable copy
     pc = modifiablePCValue.remove('$').toInt(&ok, 16);
@@ -682,7 +682,7 @@ void GPUDebugger::setStringPC(const QString& pcValue) {
 
 
 // Edit a register value in the specified bank
-void GPUDebugger::editRegister(int bank, const QString& value) {
+void Debugger::editRegister(int bank, const QString& value) {
     // Parse "R<num>: $<hexvalue>"
     QRegExp rx("^R(\\d+): \\$([0-9A-Fa-f]+)$");
     if (!rx.exactMatch(value)) {
@@ -709,7 +709,7 @@ void GPUDebugger::editRegister(int bank, const QString& value) {
 
 
 // Set the Mode (true for GPU, false for DSP)
-void GPUDebugger::setGPUMode(bool isGPUMode) {
+void Debugger::setGPUMode(bool isGPUMode) {
     GPUMode = isGPUMode;
 /*
     // Logic to switch between GPU and DSP modes
@@ -725,7 +725,7 @@ void GPUDebugger::setGPUMode(bool isGPUMode) {
 
 
 // Set a breakpoint at a specified address
-void GPUDebugger::setBreakpoint(const QString& address) {
+void Debugger::setBreakpoint(const QString& address) {
     bool ok = false;
     QString modifiableAddress = address;
     int bp = modifiableAddress.remove('$').toInt(&ok, 16);
@@ -747,19 +747,19 @@ void GPUDebugger::setBreakpoint(const QString& address) {
 
 
 // Check if a breakpoint is set at a given address
-bool GPUDebugger::hasBreakpoint(int address) const {
+bool Debugger::hasBreakpoint(int address) const {
     return breakpoints.contains(address);
 }
 
 
 // Disassemble the program starting from the given load address
-QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {
+QStringList Debugger::disassemble(int loadAddress, int programSize) const {
     QStringList result;
     const uint8_t* walk = MemoryBuffer.data() + loadAddress;
     int size = programSize;
     int adrs = loadAddress;
 
-    GPUDebugger* self = const_cast<GPUDebugger*>(this);
+    Debugger* self = const_cast<Debugger*>(this);
 
     int total = (programSize > 0) ? programSize : 1;
     int processed = 0;
@@ -872,7 +872,7 @@ QStringList GPUDebugger::disassemble(int loadAddress, int programSize) const {
 
 
 // Update the Jump Buffer label in the debugger UI
-void GPUDebugger::JumpBuffLabelUpdate() {
+void Debugger::JumpBuffLabelUpdate() {
     /*
     if (jumpbuffered) {
         GDBUG.JUMPLabel.Caption = "Jump: $" + IntToHex(JMPPC, 8);
@@ -887,14 +887,14 @@ void GPUDebugger::JumpBuffLabelUpdate() {
 
 
 // Update the N and Z flags based on the value of i
-void GPUDebugger::Update_ZN_Flag(int i) {
+void Debugger::Update_ZN_Flag(int i) {
     flagN = (i < 0) ? 1 : 0;
     flagZ = (i == 0) ? 1 : 0;
 }
 
 
 //  Update the C flag for addition
-void GPUDebugger::Update_C_Flag_Add(int a, int b) {
+void Debugger::Update_C_Flag_Add(int a, int b) {
     unsigned int uint1 = ~a;
     unsigned int uint2 = b;
     flagC = (uint2 > uint1) ? 1 : 0;
@@ -902,7 +902,7 @@ void GPUDebugger::Update_C_Flag_Add(int a, int b) {
 
 
 // Update the C flag for subtraction
-void GPUDebugger::Update_C_Flag_Sub(int a, int b) {
+void Debugger::Update_C_Flag_Sub(int a, int b) {
     unsigned int uint1 = a;
     unsigned int uint2 = b;
     flagC = (uint1 > uint2) ? 1 : 0;
@@ -910,7 +910,7 @@ void GPUDebugger::Update_C_Flag_Sub(int a, int b) {
 
 
 // Write a byte value to the specified address
-void GPUDebugger::WriteLong(int adrs, int data) {
+void Debugger::WriteLong(int adrs, int data) {
     int memadrs = adrs;
     adrs = adrs & 0xFFFFFFFC;
     if (memadrs != adrs) {
@@ -938,7 +938,7 @@ void GPUDebugger::WriteLong(int adrs, int data) {
 
 
 // Read a long value from the specified address
-int GPUDebugger::ReadLong(int adrs) {
+int Debugger::ReadLong(int adrs) {
     int memadrs = adrs;
     adrs = adrs & 0xFFFFFFFC;
     if (memadrs != adrs) {
@@ -965,7 +965,7 @@ int GPUDebugger::ReadLong(int adrs) {
 
 
 // get the jump flag as a string based on the flag value
-std::string GetJumpFlag(uint8_t flag) {
+std::string Debugger::GetJumpFlag(uint8_t flag) const {
     switch (flag) {
     case 0x0: return "";
     case 0x1: return "NE";
@@ -989,7 +989,7 @@ std::string GetJumpFlag(uint8_t flag) {
 
 
 // Convert an integer to a hexadecimal string with specified width
-std::string IntToHex(int value, int width) {
+std::string Debugger::IntToHex(int value, int width) const {
     std::ostringstream stream;
     stream << std::uppercase << std::setfill('0') << std::setw(width) << std::hex << value;
     return stream.str();
@@ -997,7 +997,7 @@ std::string IntToHex(int value, int width) {
 
 
 // Check if the jump condition matches the current flags
-bool GPUDebugger::JumpConditionMatch(uint8_t condition) const {
+bool Debugger::JumpConditionMatch(uint8_t condition) const {
     return
         (condition == 0) ||
         ((condition == 1) && (flagZ == 0)) ||
@@ -1026,7 +1026,7 @@ void GPUDebugger::setMemoryWarningEnabled(bool enabled) {
 
 
 // Read a byte from the specified address
-int GPUDebugger::ReadByte(int adrs) {
+int Debugger::ReadByte(int adrs) {
     int memadrs = adrs;
     if (CheckInternalRam(memadrs))
         QMessageBox::warning(nullptr, "Warning", "ReadByte not allowed in internal RAM!");
@@ -1044,7 +1044,7 @@ int GPUDebugger::ReadByte(int adrs) {
 
 
 // Read a word from the specified address
-int GPUDebugger::ReadWord(int adrs, bool nochk) {
+int Debugger::ReadWord(int adrs, bool nochk) {
     int memadrs = adrs;
     adrs = adrs & 0xFFFFFFFE;
     if ((memadrs != adrs) && !memoryWarningEnabled) {
@@ -1069,7 +1069,7 @@ int GPUDebugger::ReadWord(int adrs, bool nochk) {
 
 
 // Write a word to the specified address
-void GPUDebugger::WriteWord(int adrs, int data) {
+void Debugger::WriteWord(int adrs, int data) {
     int memadrs = adrs;
     adrs = adrs & 0xFFFFFFFE;
     if ((memadrs != adrs) && !memoryWarningEnabled) {
@@ -1093,7 +1093,7 @@ void GPUDebugger::WriteWord(int adrs, int data) {
 
 
 // Write a byte to the specified address
-void GPUDebugger::WriteByte(int adrs, int data) {
+void Debugger::WriteByte(int adrs, int data) {
     int memadrs = adrs;
     if (CheckInternalRam(memadrs))
         QMessageBox::warning(nullptr, "Warning", "WriteByte not allowed in internal ram !");
@@ -1110,7 +1110,7 @@ void GPUDebugger::WriteByte(int adrs, int data) {
 
 
 // Check memory write conditions and update registers accordingly
-void GPUDebugger::MemWriteCheck() {
+void Debugger::MemWriteCheck() {
     if (GPUMode) {
         if ((ReadLong(G_CTRL) & 1) == 0 && gpurun) {
             StopGPU();
@@ -1141,14 +1141,14 @@ void GPUDebugger::MemWriteCheck() {
 
 
 // Stop the program execution
-void GPUDebugger::StopGPU() {
+void Debugger::StopGPU() {
     gpurun = false;
 }
 
 
 
 // Check if the address is in the GPU, or DSP, RAM range
-bool GPUDebugger::CheckInternalRam(int memadrs) {
+bool Debugger::CheckInternalRam(int memadrs) {
     int mas, mae;
     if (GPUMode) {
         mas = G_RAM;

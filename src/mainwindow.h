@@ -11,7 +11,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMessageBox>
-#include "gpudebugger.h"
+#include "debugger.h"
 #include <vector>
 
 // MainWindow: The main Qt5 window for the Jaguar GPU Simulator/Debugger.
@@ -67,7 +67,7 @@ private:
     QProgressBar *progress;
     QFileDialog *openDialog;
 
-    GPUDebugger debugger; // The core logic handler
+    Debugger debugger; // The core logic handler
 
     // Sets up the UI layout and widgets
     void setupUI();

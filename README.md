@@ -5,10 +5,10 @@ Atari Jaguar GPU|DSP simulator & debugger
 * Windows 10/11 64-bit
 * MinGW 64-bit
 
-## Project
-* Visual Studio 2022 64-bit
-* Makefile
-* CMakeLists
+## Project & prerequisites
+* Visual Studio 2022 64-bit, Makefile or CMakeLists
+* Qt5
+* gcc
 
 ## Foundation
 This project is using the work from https://github.com/42Bastian/gpudbug which is based on the Orion's GPUDBUG.

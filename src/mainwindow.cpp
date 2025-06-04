@@ -95,7 +95,7 @@ void MainWindow::setupUI() {
     //label4 = new QLabel("at");
     pcEdit = new QLineEdit("$00F03000");
     label5 = new QLabel("PC:");
-    runBtn = new QPushButton("Launch (F5)");
+    runBtn = new QPushButton("Execute (F5)");
     stepBtn = new QPushButton("Step into (F11)");
     skipBtn = new QPushButton("Skip (F7)");
     resetBtn = new QPushButton("Restart (F3)");

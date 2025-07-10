@@ -65,7 +65,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <ObjectFileName>$(IntDir)\obj\</ObjectFileName>
+      <ObjectFileName>$(IntDir)obj\</ObjectFileName>
+      <XMLDocumentationFileName>$(IntDir)docs\</XMLDocumentationFileName>
     </ClCompile>
     <PreBuildEvent>
       <Command>powershell -Command "$v = Get-Content '..\VERSION'; $n = git rev-list --count HEAD; (Get-Content ..\version.h.in) -replace '@APP_VERSION@', \"$v.$n\" -replace '@APP_BUILD_DATE@', (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Set-Content ..\src\version.h"</Command>
@@ -75,6 +76,15 @@
     <PreBuildEvent>
       <Command>powershell -Command "$v = Get-Content '..\VERSION'; $n = git rev-list --count HEAD; (Get-Content ..\version.h.in) -replace '@APP_VERSION@', \"$v.$n\" -replace '@APP_BUILD_DATE@', (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | Set-Content ..\src\version.h"</Command>
     </PreBuildEvent>
+    <ClCompile>
+      <AssemblerListingLocation>$(IntDir)asm\</AssemblerListingLocation>
+    </ClCompile>
+    <ClCompile>
+      <ObjectFileName>$(IntDir)obj\</ObjectFileName>
+    </ClCompile>
+    <ClCompile>
+      <XMLDocumentationFileName>$(IntDir)docs\</XMLDocumentationFileName>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

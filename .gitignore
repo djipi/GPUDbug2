@@ -4,7 +4,8 @@ x64/
 Backup/
 src/Unit1.pas
 Resources/Unit1.lfm
-build/
+[Bb]uild/
 GPUDbug2.exe
 src/version.h
 Release/
+Tests

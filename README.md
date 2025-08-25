@@ -1,4 +1,4 @@
-![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white) ![Ubuntu Build](https://github.com/djipi/GPUDbug2/actions/workflows/main.yml/badge.svg?label=Ubuntu)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white) ![Ubuntu Build](https://github.com/djipi/GPUDbug2/actions/workflows/build.yml/badge.svg?label=Ubuntu)
 
 # GPUDbug2
 Atari Jaguar GPU|DSP simulator & debugger

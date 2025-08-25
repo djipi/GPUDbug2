@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Find Qt5 (adjust Qt6 if needed)
+# Find Qt5 (adjust Qt5 if needed)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 # Read version from VERSION file

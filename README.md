@@ -1,3 +1,5 @@
+![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu&logoColor=white) ![Ubuntu Build](https://github.com/djipi/GPUDbug2/actions/workflows/main.yml/badge.svg?label=Ubuntu)
+
 # GPUDbug2
 Atari Jaguar GPU|DSP simulator & debugger
 
@@ -6,10 +8,12 @@ Atari Jaguar GPU|DSP simulator & debugger
 * MinGW 64-bit
 * Linux
 
-## Project & prerequisites
-* Visual Studio 2022 64-bit, Makefile or CMake
+## Project
+* Visual Studio 2022
+* Makefile
+* CMake
+### prerequisites
 * Qt5
-* gcc
 
 ## Foundation
 This project is using the work from https://github.com/42Bastian/gpudbug which is based on the Orion's GPUDBUG.

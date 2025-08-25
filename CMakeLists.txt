@@ -32,11 +32,11 @@ string(TIMESTAMP APP_BUILD_DATE "%Y-%m-%d %H:%M:%S")
 # Configure version.h
 configure_file(
     ${CMAKE_SOURCE_DIR}/version.h.in
-    ${CMAKE_SOURCE_DIR}/src/version.h
+    ${CMAKE_BINARY_DIR}/version.h
     @ONLY
 )
 
-# Add the generated version.h to your include paths
+# Add the generated version.h to the include paths
 include_directories(${CMAKE_BINARY_DIR})
 
 # Add source files
@@ -61,3 +61,6 @@ target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
+# Clap de fin
+message(STATUS "Configuration of ${PROJECT_NAME} complete")

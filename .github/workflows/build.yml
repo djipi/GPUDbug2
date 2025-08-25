@@ -18,7 +18,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build pkg-config cmake g++ qt5-default qtbase5-dev qttools5-dev-tools
+          sudo apt-get install -y ninja-build pkg-config cmake g++ qtbase5-dev qttools5-dev-tools
 
       # --- First build ---
       - name: Configure CMake
